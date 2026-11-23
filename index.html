@@ -184,7 +184,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
           <button class="btn sm" id="w-3" aria-pressed="false">3ª persona</button>
           <button class="btn sm" id="w-nivel" hidden>Subir a planta alta</button>
         </div>
-        <p class="hint">Avanza con W y S o las flechas arriba y abajo; gira con las flechas izquierda y derecha. En celular usa la palanca. Arrastra la imagen para voltear a ver. La persona mide 1.65 m.</p>
+        <p class="hint">Avanza con W y S o las flechas arriba y abajo; gira con las flechas izquierda y derecha. En celular usa la palanca. Arrastra la imagen para voltear a ver. La persona mide 1.65 m. En las casas de dos plantas, camina hacia la escalera para subir o bajar.</p>
       </div>
     </section>
 
@@ -1086,7 +1086,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   function gather() {
     colliders = [];
     scene.updateMatrixWorld(true);
-    function add(o) { var b = new THREE.Box3().setFromObject(o); if (b.max.y > PYf + 0.35 && b.min.y < PYf + 1.5) colliders.push(b); }
+    function add(o) { var b = new THREE.Box3().setFromObject(o); colliders.push(b); }
     [site, house, alt, cerca].forEach(function (root) {
       root.traverse(function (o) {
         if (!o.isMesh) return;
@@ -1101,9 +1101,19 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   function libre(x, z) {
     for (var i = 0; i < colliders.length; i++) {
       var b = colliders[i];
+      if (b.max.y <= PYf + 0.35 || b.min.y >= PYf + 1.5) continue;       // no estorba a la altura del cuerpo
       if (x > b.min.x - RAD && x < b.max.x + RAD && z > b.min.z - RAD && z < b.max.z + RAD) return false;
     }
     return true;
+  }
+  var STW = null;                          // escalera del diseño activo, en metros del terreno
+  function alturaEn(x, z, yAct) {
+    var nivel = yAct > EP / 2 ? EP : 0;
+    if (!STW || x < STW.x0 || x > STW.x1 || z < STW.z0 || z > STW.z1) return nivel;
+    var t = (x - STW.xs) * STW.dir;        // avance dentro de los tramos, desde el arranque
+    if (t <= 0) return nivel;              // franja de llegada: es piso en ambos niveles
+    var f = Math.min(1, t / STW.run);
+    return z < STW.zm ? f * EP / 2 : EP - f * EP / 2;     // primer tramo sube al descanso; el segundo regresa hasta arriba
   }
   function dentro(x, y, z) {
     for (var i = 0; i < colliders.length; i++) {
@@ -1168,8 +1178,14 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
     var vel = (keys.Shift ? 3.2 : 1.8) * dt;
     var mx = (fxv * av - fzv * lat) * vel, mz = (fzv * av + fxv * lat) * vel;
     var atorado = !libre(P.x, P.z);                        // si algo le cayó encima, se le deja salir
-    if (mx && (atorado || libre(P.x + mx, P.z))) P.x += mx;
-    if (mz && (atorado || libre(P.x, P.z + mz))) P.z += mz;
+    // solo se avanza si el piso de adelante está a la altura de un escalón; así no se cruza de un tramo al otro ni se cae al hueco
+    function puede(nx, nz) { return Math.abs(alturaEn(nx, nz, PYf) - PYf) < 0.4 && (atorado || libre(nx, nz)); }
+    if (mx && puede(P.x + mx, P.z)) P.x += mx;
+    if (mz && puede(P.x, P.z + mz)) P.z += mz;
+    var antes = PYf > EP / 2;
+    PYf = alturaEn(P.x, P.z, PYf);
+    if (PYf > 0.3 && soloPB) setNivel(false);              // al subir se vuelve a mostrar la planta alta
+    if ((PYf > EP / 2) !== antes) document.getElementById('w-nivel').textContent = PYf > EP / 2 ? 'Bajar a planta baja' : 'Subir a planta alta';
     P.x = Math.max(-8, Math.min(36, P.x)); P.z = Math.max(-10, Math.min(16, P.z));
     var andando = Math.abs(av) + Math.abs(lat) > 0.05;
     paso = andando ? paso + dt * 8 : 0;
@@ -1894,7 +1910,12 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   }
   function setDesign(id) {
     var p = null; PROPS.forEach(function (q) { if (q.id === id) p = q; });
-    DIS = p; PYf = 0; soloPB = false;
+    DIS = p; PYf = 0; soloPB = false; STW = null;
+    if (p && p.niveles.length > 1) {
+      var e0 = escalera(p.niveles[0]), ez = 9.5 - p.niveles[0].D;
+      if (e0) STW = { x0: AX + e0.x, x1: AX + e0.x + e0.w, z0: ez + e0.z, z1: ez + e0.z + e0.d, zm: ez + e0.z + e0.d / 2,
+                      xs: AX + (e0.este ? e0.x + e0.w - 1.0 : e0.x + 1.0), dir: e0.este ? -1 : 1, run: e0.w - 2.0 };
+    }
     vaciar(alt); vaciar(altRoof); altFur = []; altNiv = []; altTej = null; altLos = null;
     house.visible = !p;
     var dos = !!p && p.niveles.length > 1;
