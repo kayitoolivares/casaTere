@@ -44,7 +44,57 @@ img { max-width: 100%; }
 html, body { height: 100%; }
 body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.45; }
 * { box-sizing: border-box; }
-.app { height: 100%; display: grid; grid-template-columns: 310px minmax(0, 1fr); }
+.app { height: 100%; display: flex; flex-direction: column; }
+.top { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 20px;
+  background: var(--panel); border-bottom: 1px solid var(--line); padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { min-width: 0; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+.tab { background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; font-weight: 500; }
+.tab[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.work { flex: 1; min-height: 0; display: grid; grid-template-columns: 310px minmax(0, 1fr); }
+.doc { flex: 1; min-height: 0; overflow-y: auto; }
+.doc-in { max-width: 1080px; margin: 0 auto; padding-block: 22px 40px; display: flex; flex-direction: column; gap: 18px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.doc-in h2 { font-size: 13px; margin: 8px 0 0; color: var(--fg); }
+.doc-in p, .doc-in li { max-width: 72ch; margin: 0; }
+.doc-in ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.nota { color: var(--muted); font-size: 13px; }
+.scroll-x { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.plano { display: block; width: 100%; height: auto; min-width: 660px; }
+.plano.chico { min-width: 340px; }
+.niveles { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start; }
+.niveles figure { margin: 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.niveles figcaption { font-weight: 600; }
+.prop { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 18px; }
+.prop h3 { font-family: var(--font-display); font-size: 18px; margin: 0; }
+.pc { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 24px; }
+.pc strong { display: block; margin-bottom: 4px; }
+.pl-stair { stroke: var(--muted); stroke-width: 1; }
+.pl-room { fill: var(--chip); }
+.pl-wall { fill: var(--fg); }
+.pl-win { fill: var(--panel); stroke: var(--fg); stroke-width: 1; }
+.pl-thin { stroke: var(--fg); stroke-width: 1; }
+.pl-door { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+.pl-dash { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; fill: none; }
+.pl-bar { fill: var(--panel); stroke: var(--fg); stroke-width: 1; }
+.pl-dim { stroke: var(--muted); stroke-width: 1; }
+.pl-dt { fill: var(--muted); font: 500 10px var(--font-body); }
+.pl-name { fill: var(--fg); font: 600 12px var(--font-display); }
+.pl-t { fill: var(--fg); font: 400 10.5px var(--font-body); }
+.pl-lot { fill: none; stroke: var(--fg); stroke-width: 1.5; }
+.pl-house { fill: var(--chip); stroke: var(--fg); stroke-width: 1.5; }
+.pl-street { fill: var(--line); }
+.pl-gate { stroke: var(--accent); stroke-width: 4; }
+.tbl { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 600px; }
+.tbl th, .tbl td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.tbl .num { text-align: right; white-space: nowrap; }
+.tbl thead th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 500; }
+.tbl .grp th { background: var(--chip); font-family: var(--font-display); font-weight: 500; }
+.tbl tfoot td { font-weight: 600; }
+.tbl tfoot .gran td { font-size: 16px; border-top: 2px solid var(--fg); }
+.tbl input { width: 92px; text-align: right; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px; }
+.tbl input.pct { width: 56px; }
 .panel {
   background: var(--panel); border-right: 1px solid var(--line);
   padding-block: 20px;
@@ -52,7 +102,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); f
   padding-right: 16px;
   overflow-y: auto; display: flex; flex-direction: column; gap: 18px; min-width: 0;
 }
-h1 { font-family: var(--font-display); font-size: 26px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+h1 { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
 .sub { color: var(--muted); margin: 2px 0 0; font-variant-numeric: tabular-nums; }
 h2 { font-family: var(--font-display); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin: 0 0 8px; }
 .views { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -92,7 +142,9 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
 .stage canvas:active { cursor: grabbing; }
 .fail { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--fg); }
 @media (max-width: 760px) {
-  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+  .work { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+  .top { padding-block: 8px; }
+  .tab { padding: 5px 9px; }
   .stage { order: 1; }
   .panel { order: 2; max-height: 46vh; border-right: 0; border-top: 1px solid var(--line); padding-block: 14px; gap: 14px;
     padding-right: max(16px, env(safe-area-inset-right, 0px)); }
@@ -101,11 +153,20 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
 </style>
 
 <div class="app">
-  <aside class="panel">
-    <header>
+  <header class="top">
+    <div class="brand">
       <h1>Casa Tere</h1>
       <p class="sub" id="sub">Terreno 22 × 10 m</p>
-    </header>
+    </div>
+    <nav class="tabs" aria-label="Secciones">
+      <button class="tab" data-tab="maqueta" aria-pressed="true">Maqueta 3D</button>
+      <button class="tab" data-tab="planos" aria-pressed="false">Planos</button>
+      <button class="tab" data-tab="costos" aria-pressed="false">Materiales y costos</button>
+      <button class="tab" data-tab="propuestas" aria-pressed="false">Otras propuestas</button>
+    </nav>
+  </header>
+  <div class="work" id="tab-maqueta">
+  <aside class="panel">
 
     <section>
       <h2>Vista</h2>
@@ -175,13 +236,17 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
     </section>
 
     <p class="hint">Arrastra para girar. Rueda o pellizco para acercar. Dos dedos o clic derecho para mover. Toca un espacio de la lista para verlo de cerca. Arrastra un auto para moverlo; con doble toque gira 45°.</p>
-    <p class="hint">Modelo del Mazda 3: basado en <a href="https://sketchfab.com/3d-models/2011-mazda-3-sedan-a8d5301ccbf548b3bc3080d0193f254f">"2011 Mazda 3 Sedan"</a> de <a href="https://sketchfab.com/outpiston">OUTPISTON</a>, con licencia <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC-BY-NC-SA-4.0</a>; se cambió el color y se dividió el archivo.</p>
+    <p class="hint">Modelo del Mazda 3: basado en <a href="https://sketchfab.com/3d-models/2011-mazda-3-sedan-a8d5301ccbf548b3bc3080d0193f254f">"2011 Mazda 3 Sedan"</a> de <a href="https://sketchfab.com/outpiston">OUTPISTON</a>, con licencia <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC-BY-NC-SA-4.0</a>; se cambió el color y se dividió el archivo. Modelo del Gol: <a href="https://sketchfab.com/3d-models/volkswagen-gol-12be647b29c1436bbb04903720ba5faa">"Volkswagen Gol"</a> de <a href="https://sketchfab.com/niev">Nieve5677</a>, con licencia <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; se cambió el color.</p>
   </aside>
 
   <main class="stage" id="stage">
     <canvas id="c" aria-label="Maqueta 3D de la casa"></canvas>
     <div id="joy" aria-label="Palanca para caminar" hidden><div id="knob"></div></div>
   </main>
+  </div>
+  <div class="doc" id="tab-planos" hidden><div class="doc-in" id="planos"></div></div>
+  <div class="doc" id="tab-costos" hidden><div class="doc-in" id="costos"></div></div>
+  <div class="doc" id="tab-propuestas" hidden><div class="doc-in" id="propuestas"></div></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -513,6 +578,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
     box(house, r.x, r.x + r.w, 0.03, 0.05, r.z, r.z + r.d, mat(r.color), true).receiveShadow = true;
   });
 
+  var WALLS = [];
   // Muro recto desde (ax, az), de largo `len`, a lo largo de 'x' o 'z'. ops = huecos {a, b, t}
   function wall(ax, az, len, dir, ops) {
     var g = new THREE.Group();
@@ -520,6 +586,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
     if (dir === 'z') g.rotation.y = -Math.PI / 2;
     house.add(g);
     ops = (ops || []).slice().sort(function (p, q) { return p.a - q.a; });
+    WALLS.push({ ax: ax, az: az, len: len, dir: dir, ops: ops });   // se reutiliza para planos y cantidades
     var s = -T / 2;
     function solid(a, b, y0, y1) { if (b - a > 0.001) box(g, a, b, y0, y1, -T / 2, T / 2, mWall); }
     function pane(a, b, z) {   // hoja de cancel corredizo
@@ -1094,6 +1161,426 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
     }
   }
 
+  // ---------- Planos (se dibujan con los mismos muros de la maqueta) ----------
+  function n2(v) { return (Math.round(v * 100) / 100).toFixed(2); }
+  function svgKit(S, x0, z0) {            // S = pixeles por metro; (x0, z0) = esquina superior izquierda en metros
+    var o = [];
+    function X(x) { return ((x - x0) * S).toFixed(1); }
+    function Z(z) { return ((z - z0) * S).toFixed(1); }
+    var k = {
+      o: o, X: X, Z: Z, S: S,
+      rect: function (xa, za, xb, zb, cls) {
+        o.push('<rect class="' + cls + '" x="' + X(Math.min(xa, xb)) + '" y="' + Z(Math.min(za, zb)) + '" width="' + (Math.abs(xb - xa) * S).toFixed(1) + '" height="' + (Math.abs(zb - za) * S).toFixed(1) + '"/>');
+      },
+      line: function (xa, za, xb, zb, cls) { o.push('<line class="' + cls + '" x1="' + X(xa) + '" y1="' + Z(za) + '" x2="' + X(xb) + '" y2="' + Z(zb) + '"/>'); },
+      text: function (x, z, s, cls, rot) {
+        o.push('<text class="' + cls + '" x="' + X(x) + '" y="' + Z(z) + '" text-anchor="middle"' + (rot ? ' transform="rotate(-90 ' + X(x) + ' ' + Z(z) + ')"' : '') + '>' + s + '</text>');
+      },
+      dimH: function (xa, xb, z, s) {
+        k.line(xa, z, xb, z, 'pl-dim'); k.line(xa, z - 0.14, xa, z + 0.14, 'pl-dim'); k.line(xb, z - 0.14, xb, z + 0.14, 'pl-dim');
+        k.text((xa + xb) / 2, z - 0.14, s || n2(Math.abs(xb - xa)), 'pl-dt');
+      },
+      dimV: function (za, zb, x, s) {
+        k.line(x, za, x, zb, 'pl-dim'); k.line(x - 0.14, za, x + 0.14, za, 'pl-dim'); k.line(x - 0.14, zb, x + 0.14, zb, 'pl-dim');
+        k.text(x - 0.14, (za + zb) / 2, s || n2(Math.abs(zb - za)), 'pl-dt', true);
+      },
+      norte: function (x, z) {            // en este plano el norte apunta a la derecha
+        k.line(x, z, x + 1.1, z, 'pl-thin');
+        o.push('<path class="pl-wall" d="M' + X(x + 1.35) + ' ' + Z(z) + ' L' + X(x + 1.0) + ' ' + Z(z - 0.14) + ' L' + X(x + 1.0) + ' ' + Z(z + 0.14) + ' Z"/>');
+        k.text(x + 1.6, z + 0.09, 'N', 'pl-name');
+      },
+      escala: function (x, z) {
+        k.line(x, z, x + 5, z, 'pl-thin');
+        [0, 1, 2, 5].forEach(function (m) { k.line(x + m, z - 0.1, x + m, z + 0.1, 'pl-thin'); k.text(x + m, z + 0.4, m + (m === 5 ? ' m' : ''), 'pl-dt'); });
+      },
+      svg: function (w, hgt, titulo) {
+        return '<div class="scroll-x"><svg class="plano" viewBox="0 0 ' + (w * S).toFixed(0) + ' ' + (hgt * S).toFixed(0) + '" role="img" aria-label="' + titulo + '">' + o.join('') + '</svg></div>';
+      }
+    };
+    return k;
+  }
+  function porcheFin() { return pExt.checked ? ZS + h : pz0 + 2.6; }
+
+  function planoPlanta() {
+    var mg = 2.3, k = svgKit(50, -h - mg, -h - mg);
+    ROOMS.forEach(function (r) {
+      k.rect(r.x, r.z, r.x + r.w, r.z + r.d, 'pl-room');
+      var cx = r.x + r.w / 2, cz = r.z + r.d / 2;
+      k.text(cx, cz - 0.12, r.name, 'pl-name');
+      k.text(cx, cz + 0.16, n2(r.w) + ' × ' + n2(r.d) + ' m', 'pl-t');
+      k.text(cx, cz + 0.42, fmt(Math.round(r.w * r.d * 10) / 10) + ' m²', 'pl-t');
+    });
+    var Cx = XE / 2, Cz = ZS / 2;
+    WALLS.forEach(function (w) {
+      var ex = w.dir === 'x';
+      function pt(s, off) { return ex ? [w.ax + s, w.az + off] : [w.ax + off, w.az + s]; }
+      function rectW(a, b, o0, o1, cls) { var p = pt(a, o0), q = pt(b, o1); k.rect(p[0], p[1], q[0], q[1], cls); }
+      function lineW(a, o0, b, o1, cls) { var p = pt(a, o0), q = pt(b, o1); k.line(p[0], p[1], q[0], q[1], cls); }
+      var cur = -h;
+      w.ops.forEach(function (o) {
+        if (o.a > cur) rectW(cur, o.a, -h, h, 'pl-wall');
+        var wd = o.b - o.a, m = pt((o.a + o.b) / 2, 0);
+        var dentro = ex ? (Cz > m[1] ? 1 : -1) : (Cx > m[0] ? 1 : -1);          // hacia el interior de la casa
+        if (o.t === 'win' || o.t === 'slide') {
+          if (o.t === 'win') { rectW(o.a, o.b, -h, h, 'pl-win'); lineW(o.a, 0, o.b, 0, 'pl-thin'); }
+          else { lineW(o.a, -0.03, o.a + wd / 2, -0.03, 'pl-door'); lineW(o.a + wd / 2 - 0.1, 0.03, o.b, 0.03, 'pl-door'); }
+          var lp = pt((o.a + o.b) / 2, 0); lp[ex ? 1 : 0] += dentro * 0.3 + (ex ? 0.04 : 0.04);
+          k.text(lp[0], lp[1], (o.t === 'slide' ? 'cancel ' : 'v ') + n2(wd), 'pl-dt', !ex);
+        } else if (o.t === 'door') {
+          var sg = (o.swing || 1.15) > 0 ? 1 : -1, hp = pt(o.a, 0);
+          var d = ex ? [1, 0] : [0, 1], nn = ex ? [0, -sg] : [sg, 0];
+          var tip = [hp[0] + nn[0] * wd, hp[1] + nn[1] * wd], end = [hp[0] + d[0] * wd, hp[1] + d[1] * wd];
+          var sweep = (nn[0] * d[1] - nn[1] * d[0]) > 0 ? 1 : 0, rr = (wd * k.S).toFixed(1);
+          k.line(hp[0], hp[1], tip[0], tip[1], 'pl-door');
+          k.o.push('<path class="pl-dash" d="M' + k.X(tip[0]) + ' ' + k.Z(tip[1]) + ' A' + rr + ' ' + rr + ' 0 0 ' + sweep + ' ' + k.X(end[0]) + ' ' + k.Z(end[1]) + '"/>');
+        } else if (o.t === 'bar') {
+          rectW(o.a, o.b, -0.3, 0.3, 'pl-bar');
+          k.text(m[0], m[1] + (ex ? 0.04 : 0), 'barra', 'pl-dt', !ex);
+        } else {
+          lineW(o.a, -h, o.b, -h, 'pl-dash'); lineW(o.a, h, o.b, h, 'pl-dash');
+        }
+        cur = o.b;
+      });
+      if (w.len + h > cur) rectW(cur, w.len + h, -h, h, 'pl-wall');
+    });
+    // Porche
+    var pf = porcheFin();
+    k.o.push('<rect class="pl-dash" x="' + k.X(px0) + '" y="' + k.Z(pz0) + '" width="' + ((px1 - px0) * 50).toFixed(1) + '" height="' + ((pf - pz0) * 50).toFixed(1) + '"/>');
+    k.text((px0 + px1) / 2, pz0 + 1.2, 'Porche', 'pl-name');
+    k.text((px0 + px1) / 2, pz0 + 1.5, n2(px1 - px0) + ' × ' + n2(pf - pz0) + ' m', 'pl-t');
+    // Cotas: medidas libres por dentro y totales por fuera
+    k.dimH(h, X1 - h, -h - 0.7); k.dimH(X1 + h, XE - h, -h - 0.7); k.dimH(XE + h, XK - h, -h - 0.7);
+    k.dimH(-h, XK + h, -h - 1.4);
+    k.dimH(h, XP - h, ZS + h + 0.9); k.dimH(XP + h, XB - h, ZS + h + 0.9); k.dimH(XB + h, XE - h, ZS + h + 0.9);
+    k.dimH(-h, XE + h, ZS + h + 1.6);
+    k.dimV(h, Z1 - h, -h - 0.6); k.dimV(Z1 + h, ZS - h, -h - 0.6);
+    k.dimV(-h, ZS + h, -h - 1.3);
+    k.dimV(h, ZK - h, XK + h + 0.8);
+    k.norte(XK - 1.2, -h - 1.9);
+    k.escala(XE + h + 0.9, ZS + h + 1.3);
+    return k.svg(XK + T + 2 * mg, ZS + T + 2 * mg, 'Planta arquitectónica');
+  }
+
+  function planoConjunto() {
+    var z0 = loteZ0 - 2.4, k = svgKit(27, -3.4, z0);
+    k.rect(22, z0 + 0.6, 26, 12.2, 'pl-street');
+    k.text(24.1, (loteZ0 + 10) / 2, 'Calle', 'pl-name', true);
+    k.rect(0, 10, 22, 10.25, 'pl-wall');
+    k.text(11, 10.9, 'Barda existente', 'pl-t');
+    k.rect(0, loteZ0, 22, 10, 'pl-lot');
+    k.rect(OX - h, OZ - h, OX + XE + h, OZ + ZS + h, 'pl-house');
+    k.rect(OX + XE + h, OZ - h, OX + XK + h, OZ + ZK + h, 'pl-house');
+    k.text(OX + XE / 2, OZ + ZS / 2, 'Casa', 'pl-name');
+    k.text(OX + XE / 2, OZ + ZS / 2 + 0.6, Math.round(huella) + ' m² de construcción', 'pl-t');
+    var pf = porcheFin();
+    k.o.push('<rect class="pl-dash" x="' + k.X(OX + px0) + '" y="' + k.Z(OZ + pz0) + '" width="' + ((px1 - px0) * 27).toFixed(1) + '" height="' + ((pf - pz0) * 27).toFixed(1) + '"/>');
+    k.text(OX + (px0 + px1) / 2, OZ + pz0 + 1.0, 'Porche', 'pl-t');
+    k.line(22, G0, 22, G1, 'pl-gate');
+    k.text(21.3, (G0 + G1) / 2, 'Portón ' + n2(G1 - G0), 'pl-t', true);
+    k.text(11, loteZ0 + 0.55, 'Malla ciclónica en los tres linderos sin barda', 'pl-dt');
+    // Cotas del terreno y separaciones de la casa a cada lindero
+    k.dimH(0, 22, loteZ0 - 1.0);
+    k.dimV(loteZ0, 10, -1.6);
+    k.dimH(0, OX - h, OZ + ZS + h - 1.2);
+    k.dimH(OX + XK + h, 22, OZ + 1.2);
+    k.dimV(loteZ0, OZ - h, OX + 4);
+    k.dimV(OZ + ZS + h, 10, OX + 4);
+    k.norte(18.6, loteZ0 - 1.7);
+    k.escala(0, 11.6);
+    return k.svg(26 + 3.4 + 0.6, 12.6 - z0, 'Planta de conjunto');
+  }
+
+  function renderPlanos() {
+    document.getElementById('planos').innerHTML =
+      '<h2>Planta arquitectónica</h2>' +
+      '<p>Cotas en metros. Las medidas de cada cuarto son libres, de muro a muro por dentro; las totales son por fuera. Muros de tabique rojo de ' + Math.round(T * 100) + ' cm, altura libre de ' + n2(H) + ' m. Los vanos de puerta son de 1.00 m; "v" es el ancho de cada ventana.</p>' +
+      planoPlanta() +
+      '<h2>Planta de conjunto</h2>' +
+      '<p>Ubicación de la casa en el terreno de 22 × ' + (10 - loteZ0) + ' m y su separación a cada lindero.</p>' +
+      planoConjunto() +
+      '<p class="nota">Estos planos sirven para platicar el proyecto y pedir cotizaciones. No incluyen cimentación, armados, losa ni instalaciones: eso lo debe calcular y firmar un perito o ingeniero, y es lo que pide el municipio de León para el permiso de construcción.</p>';
+  }
+
+  // ---------- Materiales y costos ----------
+  // Precios de referencia en pesos, aproximados y sin cotizar: se editan en la tabla y se guardan en este navegador.
+  var PRECIOS_BASE = {
+    piedra: 420, tabique: 4.2, armex15: 45, armex20: 48, varilla: 145, alambre: 38, malla66: 34, cimbra: 120,
+    cemento: 245, arena: 420, grava: 450,
+    imper: 1500, loseta: 220, pega: 110, azulejo: 220, pintura: 1600,
+    ppal: 7500, pint: 2800, vent: 2200, cancel: 9500,
+    tejaban: 900, ciclon: 520, porton: 22000,
+    elec: 450, hidro: 28000, bano: 9000, tarja: 3500, tinaco: 3200, boiler: 4500
+  };
+  var PRECIOS = {}, PCT = { mo: 60, imp: 10 }, FILAS = [];
+  function cargarPrecios() {
+    var k; for (k in PRECIOS_BASE) PRECIOS[k] = PRECIOS_BASE[k];
+    try {
+      var g = JSON.parse(localStorage.getItem('casaTere.costos') || 'null');
+      if (g) { for (k in g.p) if (k in PRECIOS && isFinite(g.p[k])) PRECIOS[k] = +g.p[k]; if (isFinite(g.mo)) PCT.mo = +g.mo; if (isFinite(g.imp)) PCT.imp = +g.imp; }
+    } catch (e) {}
+  }
+  function guardarPrecios() { try { localStorage.setItem('casaTere.costos', JSON.stringify({ p: PRECIOS, mo: PCT.mo, imp: PCT.imp })); } catch (e) {} }
+  cargarPrecios();
+  function pesos(v) { return '$' + Math.round(v).toLocaleString('es-MX'); }
+
+  function cantidades() {
+    var L = 0, bruta = 0, vanos = 0, nodos = {}, nPint = 0, aVent = 0;
+    WALLS.forEach(function (w) {
+      L += w.len; bruta += w.len * H;
+      var ex = w.dir === 'x', fin = ex ? [w.ax + w.len, w.az] : [w.ax, w.az + w.len];
+      [[w.ax, w.az], fin].forEach(function (p) { nodos[Math.round(p[0] / 0.4) + ',' + Math.round(p[1] / 0.4)] = 1; });
+      w.ops.forEach(function (o) {
+        var wd = o.b - o.a;
+        if (o.t === 'door') { vanos += wd * 2.1; if (!o.main) nPint++; }
+        else if (o.t === 'win') { var a = wd * ((o.top || 2.1) - (o.sill || 0.95)); vanos += a; aVent += a; }
+        else if (o.t === 'slide') vanos += wd * 2.1;
+        else if (o.t === 'bar') vanos += wd * 1.25;
+        else vanos += wd * 2.25;
+      });
+    });
+    var muro = bruta - vanos, K = Object.keys(nodos).length;
+    var aPorche = (px1 - px0) * (porcheFin() - pz0), porcheLosa = losa.visible;
+    var aTecho = (XE + T + 0.5) * (ZS + T + 0.5) + (XK - XE) * (ZK + T + 0.5);
+    var aLosa = aTecho + (porcheLosa ? aPorche : 0), aFirme = util + aPorche;
+    var vConc = K * 0.15 * 0.15 * H + 2 * L * 0.15 * 0.20 + aFirme * 0.08 + aLosa * 0.10;      // castillos + dalas + firme + losa
+    var vCim = L * 0.27;                                                                         // mampostería 60 base x 30 corona x 60 alto
+    var vMort = muro * 0.03 + muro * 0.04 + vCim * 0.33;                                         // junteo + aplanado dos caras + cimiento
+    var aAzul = 2 * (2 + (ZS - ZP - T)) * 1.8 - 2.1;
+    var cerca = 22 + (10 - loteZ0) + ((10 - loteZ0) - (G1 - G0));
+    var f = [];
+    function R(g, id, c, u, q, entero) { f.push({ g: g, id: id, c: c, u: u, q: entero ? Math.ceil(q - 1e-9) : Math.round(q * 10) / 10 }); }
+    R('Cimentación', 'piedra', 'Piedra braza para cimiento de mampostería', 'm³', vCim * 1.2);
+    R('Muros y estructura', 'tabique', 'Tabique rojo recocido 7 × 14 × 28', 'pza', muro * 40 * 1.05, true);
+    R('Muros y estructura', 'armex15', 'Armex 15 × 15-4 para ' + K + ' castillos', 'm', K * (H + 0.5));
+    R('Muros y estructura', 'armex20', 'Armex 15 × 20-4 para dalas de desplante y cerramiento', 'm', 2 * L);
+    R('Muros y estructura', 'varilla', 'Varilla 3/8" de 12 m para losa', 'pza', aLosa * 7.5 / 6.7, true);
+    R('Muros y estructura', 'alambre', 'Alambre recocido', 'kg', aLosa * 0.25 + L * 0.3);
+    R('Muros y estructura', 'malla66', 'Malla electrosoldada 6×6-10/10 para firme', 'm²', aFirme * 1.1);
+    R('Muros y estructura', 'cimbra', 'Renta de cimbra para losa', 'm²', aLosa);
+    R('Cemento y agregados', 'cemento', 'Cemento gris, bulto de 50 kg', 'bulto', (vConc * 7 + vMort * 6.5) * 1.05, true);
+    R('Cemento y agregados', 'arena', 'Arena', 'm³', (vConc * 0.55 + vMort * 1.1) * 1.05);
+    R('Cemento y agregados', 'grava', 'Grava', 'm³', vConc * 0.65 * 1.05);
+    R('Acabados', 'imper', 'Impermeabilizante, cubeta de 19 L', 'cubeta', aLosa / 19, true);
+    R('Acabados', 'loseta', 'Loseta para piso', 'm²', util * 1.08);
+    R('Acabados', 'azulejo', 'Azulejo para muros del baño', 'm²', aAzul * 1.08);
+    R('Acabados', 'pega', 'Pegazulejo, saco de 20 kg', 'saco', (util + aAzul) / 4, true);
+    R('Acabados', 'pintura', 'Pintura vinílica, cubeta de 19 L', 'cubeta', (2 * muro - aAzul + util) / 50, true);
+    R('Puertas y ventanas', 'ppal', 'Puerta principal con marco y chapa', 'pza', 1, true);
+    R('Puertas y ventanas', 'pint', 'Puerta interior con marco y chapa', 'pza', nPint, true);
+    R('Puertas y ventanas', 'vent', 'Ventanas de aluminio con vidrio', 'm²', aVent);
+    R('Puertas y ventanas', 'cancel', 'Cancel corredizo de cristal de 2.00 × 2.10 m', 'pza', 1, true);
+    if (!porcheLosa) R('Exteriores', 'tejaban', 'Tejabán: estructura y teja', 'm²', aPorche * 1.15);
+    R('Exteriores', 'ciclon', 'Malla ciclónica de 2 m con postes, instalada', 'm', cerca);
+    R('Exteriores', 'porton', 'Portón de dos hojas de ' + n2(G1 - G0) + ' m', 'pza', 1, true);
+    R('Instalaciones y equipo', 'elec', 'Instalación eléctrica (material)', 'm²', huella);
+    R('Instalaciones y equipo', 'hidro', 'Instalación hidráulica y sanitaria (material)', 'lote', 1, true);
+    R('Instalaciones y equipo', 'bano', 'Muebles de baño: WC, lavabo y regadera', 'lote', 1, true);
+    R('Instalaciones y equipo', 'tarja', 'Tarja con mezcladora', 'pza', 1, true);
+    R('Instalaciones y equipo', 'tinaco', 'Tinaco de 1,100 L', 'pza', 1, true);
+    R('Instalaciones y equipo', 'boiler', 'Calentador de agua', 'pza', 1, true);
+    return { filas: f, muro: muro, L: L, K: K, aLosa: aLosa, aFirme: aFirme, vConc: vConc, vCim: vCim, vMort: vMort, porcheLosa: porcheLosa };
+  }
+
+  function totalEstimado() {              // total del diseño actual con los precios vigentes
+    var sub = 0;
+    cantidades().filas.forEach(function (r) { sub += r.q * (PRECIOS[r.id] || 0); });
+    var mo = sub * PCT.mo / 100;
+    return sub + mo + (sub + mo) * PCT.imp / 100;
+  }
+  function recalcular() {
+    var sub = 0;
+    FILAS.forEach(function (r) {
+      var imp = r.q * (PRECIOS[r.id] || 0); sub += imp;
+      var c = document.getElementById('imp-' + r.id); if (c) c.textContent = pesos(imp);
+    });
+    var mo = sub * PCT.mo / 100, im = (sub + mo) * PCT.imp / 100, tot = sub + mo + im;
+    document.getElementById('c-sub').textContent = pesos(sub);
+    document.getElementById('c-mo').textContent = pesos(mo);
+    document.getElementById('c-imp').textContent = pesos(im);
+    document.getElementById('c-tot').textContent = pesos(tot);
+    document.getElementById('c-m2').textContent = pesos(tot / huella) + ' por m²';
+  }
+
+  function renderCostos() {
+    var q = cantidades(), g = '', t = '';
+    FILAS = q.filas;
+    FILAS.forEach(function (r) {
+      if (r.g !== g) { g = r.g; t += '<tr class="grp"><th colspan="5">' + g + '</th></tr>'; }
+      t += '<tr><td>' + r.c + '</td><td class="num">' + r.q.toLocaleString('es-MX') + '</td><td>' + r.u + '</td>' +
+        '<td class="num"><input type="number" min="0" step="any" id="pr-' + r.id + '" data-id="' + r.id + '" value="' + PRECIOS[r.id] + '" aria-label="Precio de ' + r.c + '"></td>' +
+        '<td class="num" id="imp-' + r.id + '"></td></tr>';
+    });
+    document.getElementById('costos').innerHTML =
+      '<h2>Materiales y costo estimado</h2>' +
+      '<p>Las cantidades salen de la maqueta: cambian solas si amplías el terreno, extiendes el porche o eliges losa en vez de tejabán. Los precios son de referencia, aproximados y sin cotizar. Cámbialos por los de tu casa de materiales y el total se actualiza; se guardan en este navegador.</p>' +
+      '<div class="scroll-x"><table class="tbl"><thead><tr><th>Concepto</th><th class="num">Cantidad</th><th>Unidad</th><th class="num">Precio unitario</th><th class="num">Importe</th></tr></thead>' +
+      '<tbody>' + t + '</tbody><tfoot>' +
+      '<tr><td colspan="4">Materiales e instalaciones</td><td class="num" id="c-sub"></td></tr>' +
+      '<tr><td colspan="3">Mano de obra, como porcentaje de los materiales</td><td class="num"><input class="pct" type="number" min="0" max="200" step="1" id="pct-mo" value="' + PCT.mo + '" aria-label="Porcentaje de mano de obra"> %</td><td class="num" id="c-mo"></td></tr>' +
+      '<tr><td colspan="3">Imprevistos</td><td class="num"><input class="pct" type="number" min="0" max="100" step="1" id="pct-imp" value="' + PCT.imp + '" aria-label="Porcentaje de imprevistos"> %</td><td class="num" id="c-imp"></td></tr>' +
+      '<tr class="gran"><td colspan="3">Total estimado</td><td class="num" id="c-m2"></td><td class="num" id="c-tot"></td></tr>' +
+      '</tfoot></table></div>' +
+      '<div><button class="btn" id="c-reset">Restablecer precios de referencia</button></div>' +
+      '<h2>Cómo se calcularon las cantidades</h2><ul>' +
+      '<li>Muros: ' + fmt(Math.round(q.muro)) + ' m² netos de tabique (' + fmt(Math.round(q.L * 10) / 10) + ' m de muro por ' + n2(H) + ' m de alto, menos puertas y ventanas), a 40 piezas por m² más 5 % de desperdicio.</li>' +
+      '<li>Cimiento de mampostería de piedra bajo todos los muros: 60 cm de base, 30 cm de corona y 60 cm de alto (' + fmt(Math.round(q.vCim * 10) / 10) + ' m³).</li>' +
+      '<li>' + q.K + ' castillos de 15 × 15 cm en esquinas y cruces de muros, y dalas de 15 × 20 cm abajo y arriba de todos los muros.</li>' +
+      '<li>Losa maciza de 10 cm sobre ' + fmt(Math.round(q.aLosa)) + ' m²' + (q.porcheLosa ? ' (incluye el porche)' : '') + ', con varilla de 3/8" a cada 20 cm en ambos sentidos; firme de 8 cm sobre ' + fmt(Math.round(q.aFirme)) + ' m² con malla electrosoldada.</li>' +
+      '<li>Concreto hecho en obra (' + fmt(Math.round(q.vConc * 10) / 10) + ' m³): 7 bultos de cemento, 0.55 m³ de arena y 0.65 m³ de grava por m³. Mortero (' + fmt(Math.round(q.vMort * 10) / 10) + ' m³) para pegar tabique, aplanar las dos caras a 2 cm y asentar el cimiento: 6.5 bultos y 1.1 m³ de arena por m³.</li>' +
+      '<li>Azulejo en los muros del baño hasta 1.80 m; loseta en todo el interior; pintura a dos manos en muros y plafón.</li></ul>' +
+      '<p class="nota">Es un estimado para darse una idea y comparar cotizaciones, no un presupuesto de obra. La cimentación, los castillos y la losa son supuestos comunes para una casa de un nivel; el cálculo real lo define un perito o ingeniero y puede cambiar las cantidades. No incluye permisos, proyecto, conexiones de agua, drenaje y luz, cocina integral, clósets ni fletes.</p>';
+    recalcular();
+  }
+  document.getElementById('costos').addEventListener('input', function (e) {
+    var el = e.target, v = parseFloat(el.value);
+    if (!isFinite(v) || v < 0) v = 0;
+    if (el.id === 'pct-mo') PCT.mo = v; else if (el.id === 'pct-imp') PCT.imp = v;
+    else if (el.getAttribute('data-id')) PRECIOS[el.getAttribute('data-id')] = v; else return;
+    guardarPrecios(); recalcular();
+  });
+  document.getElementById('costos').addEventListener('click', function (e) {
+    if (e.target.id !== 'c-reset') return;
+    try { localStorage.removeItem('casaTere.costos'); } catch (err) {}
+    PCT.mo = 60; PCT.imp = 10; cargarPrecios(); renderCostos();
+  });
+
+  // ---------- Otras propuestas (plantas esquemáticas) ----------
+  // Medidas en metros, con muros de 15 cm. Cuarto: [nombre, x, z, ancho, fondo, esEscalera].
+  // Hueco: [tipo, sentido, x, z, ancho, lado]; en sentido 'x' el hueco corre a lo largo de x y z es el eje del muro (y al revés en 'z').
+  var PROPS = [
+    { id: 'A', nombre: 'Una planta, tres recámaras, con pasillo central', rec: 3,
+      resumen: 'El mismo programa que el diseño actual, pero todo dentro de un rectángulo: recámaras de un lado del pasillo, sala, comedor y cocina del lado de la calle.',
+      pros: ['Un solo rectángulo: cimentación y losa más sencillas que con la cocina saliente.', 'El pasillo separa las recámaras de la sala; nadie cruza la sala para ir al baño.', 'Suma un rincón de estudio abierto al pasillo y una cocina más grande (4.50 × 3.00 m).'],
+      contras: ['Es la planta baja más grande: unos 20 m² más de construcción que el diseño actual.', 'Las recámaras de niños quedan de 4 × 3 m (misma área, girada).', 'La ventana de la sala hacia la barda queda a 50 cm de ella.'],
+      niveles: [{ n: 'Planta única', W: 13.10, D: 8.60,
+        rooms: [['Niños 1', 0.15, 0.15, 4, 3], ['Niños 2', 4.30, 0.15, 4, 3], ['Pasillo', 0.15, 3.30, 8.15, 1], ['Principal', 0.15, 4.45, 4, 4],
+                ['Estudio', 4.30, 4.45, 3, 1.85], ['Baño', 4.30, 6.45, 3, 2], ['Paso', 7.45, 4.45, 0.85, 4], ['Cocina', 8.45, 0.15, 4.5, 3], ['Sala comedor', 8.45, 3.30, 4.5, 5.15]],
+        ops: [['door', 'x', 2.9, 3.225, 1, 1], ['door', 'x', 4.5, 3.225, 1, 1], ['door', 'x', 2.9, 4.375, 1, -1], ['open', 'x', 4.45, 4.375, 2.7], ['open', 'x', 7.45, 4.375, 0.85],
+              ['door', 'z', 7.375, 7.0, 0.9, -1], ['open', 'z', 8.375, 3.30, 1.0], ['bar', 'x', 10.0, 3.225, 2.2], ['open', 'x', 8.6, 3.225, 0.9],
+              ['door', 'z', 13.025, 6.9, 1, -1], ['slide', 'z', 13.025, 4.2, 2], ['win', 'x', 1.4, 0.075, 1.5], ['win', 'x', 5.6, 0.075, 1.5], ['win', 'x', 9.9, 0.075, 1.6],
+              ['win', 'z', 13.025, 1.0, 1.2], ['win', 'z', 0.075, 5.7, 1.5], ['win', 'x', 5.4, 8.525, 0.8], ['win', 'x', 9.6, 8.525, 1.6]] }] },
+    { id: 'B', nombre: 'Una planta, dos recámaras', rec: 2,
+      resumen: 'El diseño actual sin la segunda recámara de niños: la cocina ocupa ese lugar y la casa queda en un rectángulo compacto.',
+      pros: ['La más económica y rápida de construir.', 'Deja el patio más largo de las opciones de una planta.', 'Cocina más grande (3.15 × 4.15 m) y dentro del rectángulo.'],
+      contras: ['Un solo cuarto para los niños.', 'Si después hace falta otra recámara, hay que ampliar hacia el patio.'],
+      niveles: [{ n: 'Planta única', W: 9.75, D: 8.60,
+        rooms: [['Niños', 0.15, 0.15, 3, 4], ['Sala comedor', 3.30, 0.15, 6.3, 4], ['Principal', 0.15, 4.30, 4, 4.15], ['Pasillo', 4.30, 4.30, 2, 1], ['Baño', 4.30, 5.45, 2, 3], ['Cocina', 6.45, 4.30, 3.15, 4.15]],
+        ops: [['door', 'z', 3.225, 2.95, 1, -1], ['open', 'x', 4.35, 4.225, 1.9], ['door', 'z', 4.225, 4.35, 0.95, -1], ['door', 'x', 4.8, 5.375, 0.9, -1], ['open', 'x', 6.5, 4.225, 0.9],
+              ['bar', 'x', 7.55, 4.225, 1.9], ['door', 'z', 9.675, 1.5, 1, -1], ['slide', 'x', 6.6, 0.075, 2], ['win', 'x', 0.9, 0.075, 1.2], ['win', 'x', 4.2, 0.075, 1.6],
+              ['win', 'z', 0.075, 5.9, 1.2], ['win', 'z', 9.675, 5.6, 1.4], ['win', 'x', 4.9, 8.525, 0.8]] }] },
+    { id: 'C', nombre: 'Dos plantas, tres recámaras', rec: 3,
+      resumen: 'Sala, comedor y cocina abajo; las tres recámaras y el baño completo arriba. Abajo se agrega medio baño y un cuarto de lavado.',
+      pros: ['Ocupa menos terreno que cualquier opción de una planta con tres recámaras.', 'Recámaras arriba, separadas de las visitas; medio baño abajo.', 'Sala comedor más amplia (8.45 × 4.00 m).'],
+      contras: ['Es la de más metros construidos y la más cara.', 'Lleva escalera y losa de entrepiso: el cálculo estructural es indispensable.', 'Escaleras con niños chicos, y un solo baño completo, arriba.'],
+      niveles: [
+        { n: 'Planta baja', W: 8.75, D: 8.60,
+          rooms: [['Sala comedor', 0.15, 0.15, 8.45, 4], ['Cocina', 0.15, 4.30, 3, 4.15], ['Pasillo', 3.30, 4.30, 1.15, 4.15], ['Escalera', 4.60, 4.30, 4, 2, 1], ['Medio baño', 4.60, 6.45, 1.5, 2], ['Lavado', 6.25, 6.45, 2.35, 2]],
+          ops: [['door', 'z', 8.675, 1.5, 1, -1], ['slide', 'x', 3.0, 0.075, 2], ['win', 'x', 6.0, 0.075, 1.6], ['win', 'z', 0.075, 1.2, 1.6], ['open', 'x', 3.35, 4.225, 1.05], ['bar', 'x', 0.6, 4.225, 2],
+                ['open', 'z', 3.225, 5.0, 0.9], ['open', 'z', 4.525, 4.4, 0.95], ['door', 'z', 4.525, 7.0, 0.8, 1], ['door', 'z', 8.675, 7.0, 0.9, -1], ['win', 'z', 0.075, 5.6, 1.4], ['win', 'x', 5.0, 8.525, 0.6]] },
+        { n: 'Planta alta', W: 8.75, D: 8.60,
+          rooms: [['Niños 1', 0.15, 0.15, 3, 4], ['Niños 2', 0.15, 4.30, 3, 4.15], ['Pasillo', 3.30, 0.15, 1.15, 8.3], ['Principal', 4.60, 0.15, 4, 4], ['Escalera', 4.60, 4.30, 4, 2, 1], ['Baño', 4.60, 6.45, 3, 2], ['Clóset', 7.75, 6.45, 0.85, 2]],
+          ops: [['door', 'z', 3.225, 2.6, 1, -1], ['door', 'z', 3.225, 5.0, 1, -1], ['door', 'z', 4.525, 2.6, 1, 1], ['open', 'z', 4.525, 4.4, 0.95], ['door', 'z', 4.525, 7.0, 0.9, 1], ['door', 'z', 7.675, 7.0, 0.7, 1],
+                ['win', 'x', 0.9, 0.075, 1.5], ['win', 'z', 0.075, 1.5, 1.2], ['win', 'z', 0.075, 5.6, 1.5], ['win', 'x', 5.8, 0.075, 1.6], ['win', 'z', 8.675, 1.4, 1.4], ['win', 'x', 5.6, 8.525, 0.8], ['win', 'z', 8.675, 4.8, 1.0]] }] },
+    { id: 'D', nombre: 'Dos plantas, dos recámaras', rec: 2,
+      resumen: 'La versión más compacta: sala, comedor y cocina abajo; recámara principal, una de niños y el baño arriba.',
+      pros: ['Es la que menos terreno ocupa: deja el patio más grande para cochera y jardín.', 'Mismos metros construidos que la opción A, repartidos en dos niveles.', 'Recámaras de las medidas pedidas (4 × 4 y 3 × 4 m) y baño de 3 × 2 m.'],
+      contras: ['Un solo cuarto para los niños.', 'Sin baño en planta baja (cabría un medio baño bajo la escalera).', 'Lleva escalera y losa de entrepiso: el cálculo estructural es indispensable.'],
+      niveles: [
+        { n: 'Planta baja', W: 7.45, D: 7.60,
+          rooms: [['Sala comedor', 0.15, 0.15, 7.15, 4], ['Vestíbulo', 0.15, 4.30, 4, 1], ['Escalera', 0.15, 5.45, 4, 2, 1], ['Cocina', 4.30, 4.30, 3, 3.15]],
+          ops: [['door', 'z', 7.375, 1.5, 1, -1], ['slide', 'x', 2.6, 0.075, 2], ['win', 'x', 5.3, 0.075, 1.4], ['win', 'z', 0.075, 1.2, 1.6], ['open', 'x', 0.3, 4.225, 3.7], ['open', 'x', 3.1, 5.375, 1],
+                ['bar', 'x', 4.5, 4.225, 1.7], ['open', 'x', 6.35, 4.225, 0.9], ['win', 'z', 7.375, 5.2, 1.4], ['win', 'x', 5.2, 7.525, 1.2]] },
+        { n: 'Planta alta', W: 7.45, D: 7.60,
+          rooms: [['Principal', 0.15, 0.15, 4, 4], ['Niños', 4.30, 0.15, 3, 4], ['Pasillo', 0.15, 4.30, 7.15, 1], ['Escalera', 0.15, 5.45, 4, 2, 1], ['Baño', 4.30, 5.45, 3, 2]],
+          ops: [['door', 'x', 2.6, 4.225, 1, 1], ['door', 'x', 4.9, 4.225, 1, 1], ['door', 'x', 5.3, 5.375, 0.9, -1], ['open', 'x', 3.1, 5.375, 1], ['win', 'x', 1.2, 0.075, 1.6], ['win', 'z', 0.075, 1.4, 1.2],
+                ['win', 'x', 5.0, 0.075, 1.5], ['win', 'z', 7.375, 1.4, 1.2], ['win', 'x', 5.4, 7.525, 0.8], ['win', 'z', 7.375, 4.45, 0.7]] }] }
+  ];
+
+  function planoPropuesta(nv) {
+    var mg = 1.2, k = svgKit(42, -mg, -mg), e = 0.075;
+    k.rect(0, 0, nv.W, nv.D, 'pl-wall');                       // todo el rectángulo es muro...
+    nv.rooms.forEach(function (r) {                            // ...y cada cuarto se "vacía" encima
+      var x = r[1], z = r[2], w = r[3], d = r[4];
+      k.rect(x, z, x + w, z + d, 'pl-room');
+      if (r[5]) {                                              // escalera en U: huellas y descanso
+        for (var s = x + 1.0; s < x + w - 0.05; s += 0.28) k.line(s, z, s, z + d, 'pl-stair');
+        k.line(x + 1.0, z + d / 2, x + w, z + d / 2, 'pl-thin');
+      }
+      var cx = x + w / 2, cz = z + d / 2, med = n2(w) + ' × ' + n2(d);
+      if (w < 1.4) k.text(cx + 0.09, cz, r[0] + ' ' + med, 'pl-dt', true);
+      else if (d < 1.3) k.text(cx, cz + 0.09, r[0] + ' ' + med, 'pl-dt');
+      else { k.text(cx, cz - 0.02, r[0], 'pl-name'); k.text(cx, cz + 0.3, med, 'pl-t'); }
+    });
+    nv.ops.forEach(function (o) {
+      var t = o[0], ex = o[1] === 'x', p = o[2], q = o[3], w = o[4], sg = o[5] || 1;
+      var a = ex ? [p, q - e, p + w, q + e] : [p - e, q, p + e, q + w];
+      if (t === 'win') { k.rect(a[0], a[1], a[2], a[3], 'pl-win'); if (ex) k.line(p, q, p + w, q, 'pl-thin'); else k.line(p, q, p, q + w, 'pl-thin'); return; }
+      k.rect(a[0], a[1], a[2], a[3], 'pl-room');
+      if (t === 'door') {
+        var d = ex ? [1, 0] : [0, 1], nn = ex ? [0, -sg] : [sg, 0];
+        var tip = [p + nn[0] * w, q + nn[1] * w], end = [p + d[0] * w, q + d[1] * w], sweep = (nn[0] * d[1] - nn[1] * d[0]) > 0 ? 1 : 0, rr = (w * k.S).toFixed(1);
+        k.line(p, q, tip[0], tip[1], 'pl-door');
+        k.o.push('<path class="pl-dash" d="M' + k.X(tip[0]) + ' ' + k.Z(tip[1]) + ' A' + rr + ' ' + rr + ' 0 0 ' + sweep + ' ' + k.X(end[0]) + ' ' + k.Z(end[1]) + '"/>');
+      } else if (t === 'slide') {
+        if (ex) { k.line(p, q - 0.03, p + w / 2, q - 0.03, 'pl-door'); k.line(p + w / 2 - 0.1, q + 0.03, p + w, q + 0.03, 'pl-door'); }
+        else { k.line(p - 0.03, q, p - 0.03, q + w / 2, 'pl-door'); k.line(p + 0.03, q + w / 2 - 0.1, p + 0.03, q + w, 'pl-door'); }
+      } else if (t === 'bar') {
+        if (ex) k.rect(p, q - 0.28, p + w, q + 0.28, 'pl-bar'); else k.rect(p - 0.28, q, p + 0.28, q + w, 'pl-bar');
+        k.text(ex ? p + w / 2 : p, ex ? q + 0.08 : q + w / 2, 'barra', 'pl-dt', !ex);
+      }
+    });
+    k.dimH(0, nv.W, -0.5); k.dimV(0, nv.D, -0.5);
+    k.norte(nv.W - 1.7, nv.D + 0.7);
+    return '<figure><figcaption>' + nv.n + '</figcaption><div class="scroll-x"><svg class="plano chico" viewBox="0 0 ' + ((nv.W + 2 * mg) * 42).toFixed(0) + ' ' + ((nv.D + 2 * mg) * 42).toFixed(0) + '" role="img" aria-label="' + nv.n + '">' + k.o.join('') + '</svg></div></figure>';
+  }
+
+  function renderPropuestas() {
+    var m2 = totalEstimado() / huella;                         // costo por m² del diseño actual, con los precios vigentes
+    function datos(p) {
+      var cons = 0, util = 0;
+      p.niveles.forEach(function (nv) { cons += nv.W * nv.D; nv.rooms.forEach(function (r) { util += r[3] * r[4]; }); });
+      var b = p.niveles[0];
+      return { cons: cons, util: util, suelo: b.W * b.D, patio: 22 - 0.45 - b.W };
+    }
+    var filas = '<tr><td>Actual</td><td>1</td><td>3</td><td class="num">' + Math.round(huella) + ' m²</td><td class="num">' + Math.round(huella) + ' m²</td><td class="num">' + n2(22 - OX - XK - h) + ' m</td><td class="num">' + pesos(m2 * huella) + '</td></tr>';
+    var cuerpo = '';
+    PROPS.forEach(function (p) {
+      var d = datos(p);
+      filas += '<tr><td>' + p.id + '</td><td>' + p.niveles.length + '</td><td>' + p.rec + '</td><td class="num">' + Math.round(d.cons) + ' m²</td><td class="num">' + Math.round(d.suelo) + ' m²</td><td class="num">' + n2(d.patio) + ' m</td><td class="num">' + pesos(m2 * d.cons) + '</td></tr>';
+      cuerpo += '<section class="prop"><h3>Propuesta ' + p.id + ' · ' + p.nombre + '</h3><p>' + p.resumen + '</p>' +
+        '<p class="nota">' + Math.round(d.cons) + ' m² de construcción, ' + Math.round(d.util) + ' m² libres por dentro. Ocupa ' + n2(p.niveles[0].W) + ' × ' + n2(p.niveles[0].D) + ' m del terreno.</p>' +
+        '<div class="niveles">' + p.niveles.map(planoPropuesta).join('') + '</div>' +
+        '<div class="pc"><div><strong>A favor</strong><ul><li>' + p.pros.join('</li><li>') + '</li></ul></div><div><strong>En contra</strong><ul><li>' + p.contras.join('</li><li>') + '</li></ul></div></div></section>';
+    });
+    document.getElementById('propuestas').innerHTML =
+      '<h2>Cuatro propuestas alternativas</h2>' +
+      '<p>Son plantas esquemáticas para comparar, con las mismas reglas del diseño actual: muros de 15 cm, medidas libres por dentro y la calle del lado derecho (norte). Todas caben en el ancho del terreno dejando 90 cm de un lado y 50 cm hacia la barda, o más.</p>' +
+      '<div class="scroll-x"><table class="tbl"><thead><tr><th>Diseño</th><th>Plantas</th><th>Recámaras</th><th class="num">Construcción</th><th class="num">Ocupa del terreno</th><th class="num">Patio al frente</th><th class="num">Costo aproximado</th></tr></thead><tbody>' + filas + '</tbody></table></div>' +
+      '<p class="nota">El costo aproximado multiplica los metros construidos por el costo por m² del diseño actual (' + pesos(m2) + ' por m², según la pestaña de costos). En las de dos plantas es un piso bajo: la escalera, la losa de entrepiso y una estructura más reforzada cuestan más por m².</p>' +
+      cuerpo +
+      '<p class="nota">Ninguna de estas propuestas está todavía en la maqueta 3D ni en la lista de materiales; esas dos pestañas siguen mostrando el diseño actual.</p>';
+  }
+
+  // ---------- Pestañas ----------
+  var tabMaqueta = document.getElementById('tab-maqueta'), TABS = ['maqueta', 'planos', 'costos', 'propuestas'], tabActual = '';
+  function showTab(t) {
+    if (TABS.indexOf(t) < 0) t = 'maqueta';
+    if (t === tabActual) return;
+    tabActual = t;
+    TABS.forEach(function (n) { document.getElementById('tab-' + n).hidden = n !== t; });
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-tab') === t ? 'true' : 'false'); });
+    if (t === 'planos') renderPlanos();
+    if (t === 'costos') renderCostos();
+    if (t === 'propuestas') renderPropuestas();
+    if (t === 'maqueta') resize();
+    try { if ((location.hash || '').slice(1) !== (t === 'maqueta' ? '' : t)) location.hash = t === 'maqueta' ? '' : t; } catch (e) {}
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
+    b.addEventListener('click', function () { showTab(b.getAttribute('data-tab')); });
+  });
+  window.addEventListener('hashchange', function () { showTab((location.hash || '').slice(1)); });
+  showTab((location.hash || '').slice(1));
+
   // ---------- Bucle ----------
   function resize() {
     var w = stage.clientWidth, h = stage.clientHeight;
@@ -1108,6 +1595,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   var lastT = performance.now();
   function frame() {
     var nowT = performance.now(), dt = Math.min(0.05, (nowT - lastT) / 1000); lastT = nowT;
+    if (tabMaqueta.hidden) { requestAnimationFrame(frame); return; }      // en Planos o Costos no se dibuja la maqueta
     if (walk) { updateWalk(dt); renderer.render(scene, camera); requestAnimationFrame(frame); return; }
     if (goal) {
       var done = true;
