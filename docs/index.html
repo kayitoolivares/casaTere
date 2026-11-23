@@ -309,6 +309,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   var loteZ0 = 0;
   var DIS = null, PYf = 0, soloPB = false, EP = H + 0.15, AX = 0.45;   // propuesta activa, piso donde camina la persona, altura de piso a piso
   var alt = new THREE.Group(), altRoof = new THREE.Group(), altFur = [], altNiv = [];
+  var PORCHE_D = 2.0, altTej = null, altLos = null;      // fondo del porche de las propuestas y sus dos techos posibles
   function setSub() {
     var cons = huella, quien = '';
     if (DIS) { cons = 0; DIS.niveles.forEach(function (nv) { cons += nv.W * nv.D; }); quien = 'Propuesta ' + DIS.id + ' · '; }
@@ -1002,6 +1003,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   var pT = document.getElementById('p-tejaban'), pL = document.getElementById('p-losa');
   function setPorch(isLosa) {
     losa.visible = isLosa; tejaban.visible = !isLosa;
+    if (altLos) { altLos.visible = isLosa; altTej.visible = !isLosa; }
     pL.setAttribute('aria-pressed', isLosa ? 'true' : 'false');
     pT.setAttribute('aria-pressed', isLosa ? 'false' : 'true');
   }
@@ -1316,6 +1318,10 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
       hx0 = AX; hx1 = AX + b0.W; hz0 = 9.5 - b0.D; hz1 = 9.5; cx = (hx0 + hx1) / 2; cons = 0;
       DIS.niveles.forEach(function (nv) { cons += nv.W * nv.D; });
       k.rect(hx0, hz0, hx1, hz1, 'pl-house');
+      if (b0.porche) {
+        k.o.push('<rect class="pl-dash" x="' + k.X(hx1) + '" y="' + k.Z(hz0 + b0.porche[0]) + '" width="' + (PORCHE_D * 27).toFixed(1) + '" height="' + ((b0.porche[1] - b0.porche[0]) * 27).toFixed(1) + '"/>');
+        k.text(hx1 + PORCHE_D / 2 + 0.12, hz0 + (b0.porche[0] + b0.porche[1]) / 2, 'Porche', 'pl-t', true);
+      }
     } else {
       hx0 = OX - h; hx1 = OX + XK + h; hz0 = OZ - h; hz1 = OZ + ZS + h; cx = OX + XE / 2; cons = huella;
       k.rect(hx0, hz0, OX + XE + h, hz1, 'pl-house');
@@ -1435,6 +1441,11 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
       });
       var top = d.niveles[d.niveles.length - 1], b0 = d.niveles[0];
       m.aLosa = (top.W + 0.5) * (top.D + 0.5);
+      if (b0.porche) {                                       // porche: firme, y losa o tejabán según lo elegido
+        var ap = PORCHE_D * (b0.porche[1] - b0.porche[0]);
+        m.aFirme += ap; m.porcheLosa = losa.visible;
+        if (m.porcheLosa) m.aLosa += ap; else m.tejaban = ap * 1.15;
+      }
       if (m.niveles > 1) { m.aEntre = b0.W * b0.D - 6; m.extraConc = 1.5; m.extraVar = 10; }   // entrepiso menos el hueco de la escalera; escalera de concreto
     }
     m.L = m.L0 + m.Lsup; m.muro = m.bruta - m.vanos;
@@ -1514,7 +1525,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
     document.getElementById('costos').innerHTML =
       selectorDiseno() +
       '<h2>Materiales y costo estimado · ' + (DIS ? 'Propuesta ' + DIS.id : 'Diseño actual') + '</h2>' +
-      '<p>' + (DIS ? 'Las cantidades salen de la planta de esta propuesta (' + Math.round(q.cons) + ' m² de construcción). ' : 'Las cantidades salen de la maqueta: cambian solas si amplías el terreno, extiendes el porche o eliges losa en vez de tejabán. ') + 'Los precios son de referencia, aproximados y sin cotizar. Cámbialos por los de tu casa de materiales y el total se actualiza; se guardan en este navegador.</p>' +
+      '<p>' + (DIS ? 'Las cantidades salen de la planta de esta propuesta (' + Math.round(q.cons) + ' m² de construcción), con su porche; cambian si eliges losa en vez de tejabán. ' : 'Las cantidades salen de la maqueta: cambian solas si amplías el terreno, extiendes el porche o eliges losa en vez de tejabán. ') + 'Los precios son de referencia, aproximados y sin cotizar. Cámbialos por los de tu casa de materiales y el total se actualiza; se guardan en este navegador.</p>' +
       '<div class="scroll-x"><table class="tbl"><thead><tr><th>Concepto</th><th class="num">Cantidad</th><th>Unidad</th><th class="num">Precio unitario</th><th class="num">Importe</th></tr></thead>' +
       '<tbody>' + t + '</tbody><tfoot>' +
       '<tr><td colspan="4">Materiales e instalaciones</td><td class="num" id="c-sub"></td></tr>' +
@@ -1532,7 +1543,6 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
       '<li>Concreto hecho en obra (' + fmt(Math.round(q.vConc * 10) / 10) + ' m³): 7 bultos de cemento, 0.55 m³ de arena y 0.65 m³ de grava por m³. Mortero (' + fmt(Math.round(q.vMort * 10) / 10) + ' m³) para pegar tabique, aplanar las dos caras a 2 cm y asentar el cimiento: 6.5 bultos y 1.1 m³ de arena por m³.</li>' +
       '<li>Azulejo en los muros del baño hasta 1.80 m; loseta en todo el interior; pintura a dos manos en muros y plafón.</li></ul>' +
       (q.niveles > 1 ? '<p class="nota">En dos plantas la cimentación, los castillos y las dalas suelen ir más reforzados de lo que aquí se supone; tómalo como un piso bajo.</p>' : '') +
-      (DIS ? '<p class="nota">Las propuestas no incluyen porche ni tejabán.</p>' : '') +
       '<p class="nota">Es un estimado para darse una idea y comparar cotizaciones, no un presupuesto de obra. La cimentación, los castillos y la losa son supuestos comunes para una casa de un nivel; el cálculo real lo define un perito o ingeniero y puede cambiar las cantidades. No incluye permisos, proyecto, conexiones de agua, drenaje y luz, cocina integral, clósets ni fletes.</p>';
     recalcular();
   }
@@ -1563,7 +1573,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
       resumen: 'El mismo programa que el diseño actual, pero todo dentro de un rectángulo: recámaras de un lado del pasillo, sala, comedor y cocina del lado de la calle.',
       pros: ['Un solo rectángulo: cimentación y losa más sencillas que con la cocina saliente.', 'El pasillo separa las recámaras de la sala; nadie cruza la sala para ir al baño.', 'Suma un rincón de estudio abierto al pasillo y una cocina más grande (4.50 × 3.00 m).'],
       contras: ['Es la planta baja más grande: unos 20 m² más de construcción que el diseño actual.', 'Las recámaras de niños quedan de 4 × 3 m (misma área, girada).', 'La ventana de la sala hacia la barda queda a 50 cm de ella.'],
-      niveles: [{ n: 'Planta única', W: 13.10, D: 8.60,
+      niveles: [{ n: 'Planta única', W: 13.10, D: 8.60, porche: [4.0, 8.6],
         rooms: [['Niños 1', 0.15, 0.15, 4, 3], ['Niños 2', 4.30, 0.15, 4, 3], ['Pasillo', 0.15, 3.30, 8.15, 1], ['Principal', 0.15, 4.45, 4, 4],
                 ['Estudio', 4.30, 4.45, 3, 1.85], ['Baño', 4.30, 6.45, 3, 2], ['Paso', 7.45, 4.45, 0.85, 4], ['Cocina', 8.45, 0.15, 4.5, 3], ['Sala comedor', 8.45, 3.30, 4.5, 5.15]],
         ops: [['door', 'x', 2.9, 3.225, 1, 1], ['door', 'x', 4.5, 3.225, 1, 1], ['door', 'x', 2.9, 4.375, 1, -1], ['open', 'x', 4.45, 4.375, 2.7], ['open', 'x', 7.45, 4.375, 0.85],
@@ -1574,7 +1584,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
       resumen: 'El diseño actual sin la segunda recámara de niños: la cocina ocupa ese lugar y la casa queda en un rectángulo compacto.',
       pros: ['La más económica y rápida de construir.', 'Deja el patio más largo de las opciones de una planta.', 'Cocina más grande (3.15 × 4.15 m) y dentro del rectángulo.'],
       contras: ['Un solo cuarto para los niños.', 'Si después hace falta otra recámara, hay que ampliar hacia el patio.'],
-      niveles: [{ n: 'Planta única', W: 9.75, D: 8.60,
+      niveles: [{ n: 'Planta única', W: 9.75, D: 8.60, porche: [0.4, 3.6],
         rooms: [['Niños', 0.15, 0.15, 3, 4], ['Sala comedor', 3.30, 0.15, 6.3, 4], ['Principal', 0.15, 4.30, 4, 4.15], ['Pasillo', 4.30, 4.30, 2, 1], ['Baño', 4.30, 5.45, 2, 3], ['Cocina', 6.45, 4.30, 3.15, 4.15]],
         ops: [['door', 'z', 3.225, 2.95, 1, -1], ['open', 'x', 4.35, 4.225, 1.9], ['door', 'z', 4.225, 4.35, 0.95, -1], ['door', 'x', 4.8, 5.375, 0.9, -1], ['open', 'x', 6.5, 4.225, 0.9],
               ['bar', 'x', 7.55, 4.225, 1.9], ['door', 'z', 9.675, 1.5, 1, -1], ['slide', 'x', 6.6, 0.075, 2], ['win', 'x', 0.9, 0.075, 1.2], ['win', 'x', 4.2, 0.075, 1.6],
@@ -1584,7 +1594,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
       pros: ['Ocupa menos terreno que cualquier opción de una planta con tres recámaras.', 'Recámaras arriba, separadas de las visitas; medio baño abajo.', 'Sala comedor más amplia (8.45 × 4.00 m).'],
       contras: ['Es la de más metros construidos y la más cara.', 'Lleva escalera y losa de entrepiso: el cálculo estructural es indispensable.', 'Escaleras con niños chicos, y un solo baño completo, arriba.'],
       niveles: [
-        { n: 'Planta baja', W: 8.75, D: 8.60,
+        { n: 'Planta baja', W: 8.75, D: 8.60, porche: [0.4, 3.6],
           rooms: [['Sala comedor', 0.15, 0.15, 8.45, 4], ['Cocina', 0.15, 4.30, 3, 4.15], ['Pasillo', 3.30, 4.30, 1.15, 4.15], ['Escalera', 4.60, 4.30, 4, 2, 1], ['Medio baño', 4.60, 6.45, 1.5, 2], ['Lavado', 6.25, 6.45, 2.35, 2]],
           ops: [['door', 'z', 8.675, 1.5, 1, -1], ['slide', 'x', 3.0, 0.075, 2], ['win', 'x', 6.0, 0.075, 1.6], ['win', 'z', 0.075, 1.2, 1.6], ['open', 'x', 3.35, 4.225, 1.05], ['bar', 'x', 0.6, 4.225, 2],
                 ['open', 'z', 3.225, 5.0, 0.9], ['open', 'z', 4.525, 4.4, 0.95], ['door', 'z', 4.525, 7.0, 0.8, 1], ['door', 'z', 8.675, 7.0, 0.9, -1], ['win', 'z', 0.075, 5.6, 1.4], ['win', 'x', 5.0, 8.525, 0.6]] },
@@ -1597,7 +1607,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
       pros: ['Es la que menos terreno ocupa: deja el patio más grande para cochera y jardín.', 'Mismos metros construidos que la opción A, repartidos en dos niveles.', 'Recámaras de las medidas pedidas (4 × 4 y 3 × 4 m) y baño de 3 × 2 m.'],
       contras: ['Un solo cuarto para los niños.', 'Sin baño en planta baja (cabría un medio baño bajo la escalera).', 'Lleva escalera y losa de entrepiso: el cálculo estructural es indispensable.'],
       niveles: [
-        { n: 'Planta baja', W: 7.45, D: 7.60,
+        { n: 'Planta baja', W: 7.45, D: 7.60, porche: [0.4, 3.6],
           rooms: [['Sala comedor', 0.15, 0.15, 7.15, 4], ['Vestíbulo', 0.15, 4.30, 4, 1], ['Escalera', 0.15, 5.45, 4, 2, 1], ['Cocina', 4.30, 4.30, 3, 3.15]],
           ops: [['door', 'z', 7.375, 1.5, 1, -1], ['slide', 'x', 2.6, 0.075, 2], ['win', 'x', 5.3, 0.075, 1.4], ['win', 'z', 0.075, 1.2, 1.6], ['open', 'x', 0.3, 4.225, 3.7], ['open', 'x', 3.1, 5.375, 1],
                 ['bar', 'x', 4.5, 4.225, 1.7], ['open', 'x', 6.35, 4.225, 0.9], ['win', 'z', 7.375, 5.2, 1.4], ['win', 'x', 5.2, 7.525, 1.2]] },
@@ -1609,6 +1619,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
 
   function planoPropuesta(nv, det) {      // det = versión grande y acotada, para la pestaña de Planos
     det = det === true;
+    var ext = nv.porche ? (det ? 1.2 : 1.0) : 0;           // espacio extra a la derecha para dibujar el porche
     var mg = det ? 2.0 : 1.2, SS = det ? 50 : 42, k = svgKit(SS, -mg, -mg), e = 0.075;
     k.rect(0, 0, nv.W, nv.D, 'pl-wall');                       // todo el rectángulo es muro...
     nv.rooms.forEach(function (r) {                            // ...y cada cuarto se "vacía" encima
@@ -1626,6 +1637,11 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
         if (det) k.text(cx, cz + 0.42, fmt(Math.round(w * d * 10) / 10) + ' m²', 'pl-t');
       }
     });
+    if (nv.porche) {
+      var pa = nv.porche[0], pb = nv.porche[1];
+      k.o.push('<rect class="pl-dash" x="' + k.X(nv.W) + '" y="' + k.Z(pa) + '" width="' + (PORCHE_D * k.S).toFixed(1) + '" height="' + ((pb - pa) * k.S).toFixed(1) + '"/>');
+      k.text(nv.W + PORCHE_D / 2 + 0.09, (pa + pb) / 2, 'Porche ' + n2(PORCHE_D) + ' × ' + n2(pb - pa), 'pl-dt', true);
+    }
     nv.ops.forEach(function (o) {
       var t = o[0], ex = o[1] === 'x', p = o[2], q = o[3], w = o[4], sg = o[5] || 1;
       var a = ex ? [p, q - e, p + w, q + e] : [p - e, q, p + e, q + w];
@@ -1653,15 +1669,15 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
         if (Math.abs(r[2] - 0.15) < 0.01) k.dimH(r[1], r[1] + r[3], -0.5);
         if (Math.abs(r[2] + r[4] - (nv.D - 0.15)) < 0.01) k.dimH(r[1], r[1] + r[3], nv.D + 0.7);
         if (Math.abs(r[1] - 0.15) < 0.01) k.dimV(r[2], r[2] + r[4], -0.45);
-        if (Math.abs(r[1] + r[3] - (nv.W - 0.15)) < 0.01) k.dimV(r[2], r[2] + r[4], nv.W + 0.75);
+        if (Math.abs(r[1] + r[3] - (nv.W - 0.15)) < 0.01) k.dimV(r[2], r[2] + r[4], nv.W + 0.75 + (nv.porche ? PORCHE_D : 0));
       });
       k.dimH(0, nv.W, -1.2); k.dimV(0, nv.D, -1.15);
       k.norte(nv.W - 1.7, nv.D + 1.45); k.escala(0, nv.D + 1.35);
-      return k.svg(nv.W + 2 * mg, nv.D + 2 * mg, nv.n);
+      return k.svg(nv.W + 2 * mg + ext, nv.D + 2 * mg, nv.n);
     }
     k.dimH(0, nv.W, -0.5); k.dimV(0, nv.D, -0.5);
     k.norte(nv.W - 1.7, nv.D + 0.7);
-    return '<figure><figcaption>' + nv.n + '</figcaption><div class="scroll-x"><svg class="plano chico" viewBox="0 0 ' + ((nv.W + 2 * mg) * 42).toFixed(0) + ' ' + ((nv.D + 2 * mg) * 42).toFixed(0) + '" role="img" aria-label="' + nv.n + '">' + k.o.join('') + '</svg></div></figure>';
+    return '<figure><figcaption>' + nv.n + '</figcaption><div class="scroll-x"><svg class="plano chico" viewBox="0 0 ' + ((nv.W + 2 * mg + ext) * 42).toFixed(0) + ' ' + ((nv.D + 2 * mg) * 42).toFixed(0) + '" role="img" aria-label="' + nv.n + '">' + k.o.join('') + '</svg></div></figure>';
   }
 
   function renderPropuestas() {
@@ -1685,9 +1701,9 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
     });
     document.getElementById('propuestas').innerHTML =
       '<h2>Cuatro propuestas alternativas</h2>' +
-      '<p>Son plantas esquemáticas para comparar, con las mismas reglas del diseño actual: muros de 15 cm, medidas libres por dentro y la calle del lado derecho (norte). Todas caben en el ancho del terreno dejando 90 cm de un lado y 50 cm hacia la barda, o más.</p>' +
+      '<p>Son plantas esquemáticas para comparar, con las mismas reglas del diseño actual: muros de 15 cm, medidas libres por dentro y la calle del lado derecho (norte). Todas caben en el ancho del terreno dejando 90 cm de un lado y 50 cm hacia la barda, o más. Cada una lleva un porche de 2 m de fondo frente a la entrada, con tejabán o losa según lo que elijas en la maqueta.</p>' +
       '<div class="scroll-x"><table class="tbl"><thead><tr><th>Diseño</th><th>Plantas</th><th>Recámaras</th><th class="num">Construcción</th><th class="num">Ocupa del terreno</th><th class="num">Patio al frente</th><th class="num">Costo aproximado</th></tr></thead><tbody>' + filas + '</tbody></table></div>' +
-      '<p class="nota">El costo aproximado de cada diseño sale de su propia lista de materiales, con los precios de la pestaña de costos. En las de dos plantas es un piso bajo, porque la estructura suele ir más reforzada. Las propuestas no incluyen porche.</p>' +
+      '<p class="nota">El costo aproximado de cada diseño sale de su propia lista de materiales, con los precios de la pestaña de costos. En las de dos plantas es un piso bajo, porque la estructura suele ir más reforzada. Todos incluyen su porche de entrada.</p>' +
       cuerpo +
       '<p class="nota">Cada propuesta tiene su maqueta 3D, sus planos acotados y su lista de materiales: usa los botones de cada una o el selector de diseño en esas pestañas.</p>';
   }
@@ -1856,6 +1872,24 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
         v.renderOrder = 2;
       }
     });
+    if (nv.porche && !esAlto) {                              // porche frente a la entrada, del lado de la calle
+      var pa = nv.porche[0], pb = nv.porche[1], pe = W + PORCHE_D;
+      box(G, W, pe, 0, 0.1, pa, pb, mat('#c4c0b8'));
+      altTej = new THREE.Group(); altLos = new THREE.Group(); G.add(altTej); G.add(altLos);
+      [pa + 0.12, pb - 0.12].forEach(function (z) {
+        box(altTej, pe - 0.18, pe - 0.06, 0.1, 2.12, z - 0.06, z + 0.06, mPost);
+        box(altLos, pe - 0.22, pe - 0.02, 0.1, H, z - 0.1, z + 0.1, mConc);
+      });
+      box(altTej, pe - 0.18, pe - 0.06, 2.12, 2.2, pa, pb, mPost);
+      var run = PORCHE_D + 0.3, drop = 0.38;
+      var teja = new THREE.Mesh(new THREE.BoxGeometry(Math.sqrt(run * run + drop * drop), 0.06, pb - pa), mat('#a8482f'));
+      teja.position.set(W + run / 2, 2.55 - drop / 2, (pa + pb) / 2);
+      teja.rotation.z = -Math.atan(drop / run);
+      teja.castShadow = true; teja.receiveShadow = true;
+      altTej.add(teja);
+      box(altLos, W, pe + 0.25, H, H + 0.15, pa, pb, mConc);
+      altLos.visible = losa.visible; altTej.visible = !losa.visible;
+    }
     var fg = new THREE.Group(); G.add(fg); altFur.push(fg); fg.visible = tMuebles.checked;
     amueblar(nv, fg, y0);
     if (esUltimo) box(altRoof, -0.25, W + 0.25, y0 + H, y0 + H + 0.15, -0.25, D + 0.25, mRoof);
@@ -1874,7 +1908,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   function setDesign(id) {
     var p = null; PROPS.forEach(function (q) { if (q.id === id) p = q; });
     DIS = p; PYf = 0; soloPB = false;
-    vaciar(alt); vaciar(altRoof); altFur = []; altNiv = [];
+    vaciar(alt); vaciar(altRoof); altFur = []; altNiv = []; altTej = null; altLos = null;
     house.visible = !p;
     var dos = !!p && p.niveles.length > 1;
     if (p) {
@@ -1890,7 +1924,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
       b0.ops.forEach(function (o) { if (o[0] === 'door' && o[1] === 'z' && o[2] > b0.W - 0.1 && zc === b0.D / 2) zc = o[3] + o[4] / 2; });
       buildAndador(AX + b0.W, az + zc);
       listarEspacios(items);
-      document.getElementById('dis-nota').textContent = 'Propuesta ' + p.id + ': ' + p.nombre.toLowerCase() + '. El porche es solo del diseño actual.';
+      document.getElementById('dis-nota').textContent = 'Propuesta ' + p.id + ': ' + p.nombre.toLowerCase() + '. La opción de extender el porche es solo del diseño actual.';
     } else {
       buildAndador(OX + XK + h, OZ + ZK + h + 1.15);
       listarEspacios(espaciosActual());
