@@ -154,6 +154,21 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   </header>
   <div class="work" id="tab-maqueta">
   <aside class="panel">
+    <section>
+      <h2>Diseño</h2>
+      <div class="views" id="disenos">
+        <button class="btn sm" data-dis="" aria-pressed="true">Actual</button>
+        <button class="btn sm" data-dis="A" aria-pressed="false">A</button>
+        <button class="btn sm" data-dis="B" aria-pressed="false">B</button>
+        <button class="btn sm" data-dis="C" aria-pressed="false">C</button>
+        <button class="btn sm" data-dis="D" aria-pressed="false">D</button>
+      </div>
+      <p class="hint" id="dis-nota" style="margin-top:8px"></p>
+      <div class="views" id="niveles" style="margin-top:8px" hidden>
+        <button class="btn sm" id="n-todo" aria-pressed="true">Las dos plantas</button>
+        <button class="btn sm" id="n-pb" aria-pressed="false">Solo planta baja</button>
+      </div>
+    </section>
 
     <section>
       <h2>Vista</h2>
@@ -167,6 +182,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
         <div class="views">
           <button class="btn sm" id="w-1" aria-pressed="true">1ª persona</button>
           <button class="btn sm" id="w-3" aria-pressed="false">3ª persona</button>
+          <button class="btn sm" id="w-nivel" hidden>Subir a planta alta</button>
         </div>
         <p class="hint">Avanza con W y S o las flechas arriba y abajo; gira con las flechas izquierda y derecha. En celular usa la palanca. Arrastra la imagen para voltear a ver. La persona mide 1.65 m.</p>
       </div>
@@ -278,8 +294,12 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   var huella = (XE + T) * (ZS + T) + (XK - XE) * (ZK + T);
   // El terreno va de z = loteZ0 a z = 10 (la barda). Con 12 m de ancho, los 2 m extra quedan del lado opuesto a la barda.
   var loteZ0 = 0;
+  var DIS = null, PYf = 0, soloPB = false, EP = H + 0.15, AX = 0.45;   // propuesta activa, piso donde camina la persona, altura de piso a piso
+  var alt = new THREE.Group(), altRoof = new THREE.Group(), altFur = [], altNiv = [];
   function setSub() {
-    document.getElementById('sub').textContent = 'Terreno 22 × ' + (10 - loteZ0) + ' m · ' + Math.round(huella) + ' m² de construcción · muros de tabique de ' + Math.round(T * 100) + ' cm';
+    var cons = huella, quien = '';
+    if (DIS) { cons = 0; DIS.niveles.forEach(function (nv) { cons += nv.W * nv.D; }); quien = 'Propuesta ' + DIS.id + ' · '; }
+    document.getElementById('sub').textContent = 'Terreno 22 × ' + (10 - loteZ0) + ' m · ' + quien + Math.round(cons) + ' m² de construcción · muros de tabique de ' + Math.round(T * 100) + ' cm';
   }
   setSub();
   document.getElementById('total').textContent = fmt(Math.round(util * 10) / 10) + ' m²';
@@ -342,7 +362,9 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   box(site, 22, 34, -0.06, -0.01, 5, 10, mat('#8d8f92'), true);                              // calle
   box(site, 22, 26, -0.06, -0.01, -7, 5, mat('#8d8f92'), true);                              // calle
   box(site, 0, 22, 0, 2.2, 10, 10.2, mat('#c9a08c'));                                        // barda
-  box(site, OX + XK + h, 22, 0, 0.03, OZ + ZK + h + 0.5, OZ + ZK + h + 1.8, mat('#d8d3c7'), true).receiveShadow = true; // andador de la calle al porche
+  var andador = new THREE.Group(); site.add(andador);       // andador de la calle a la entrada
+  function buildAndador(x0, zc) { vaciar(andador); box(andador, x0, 22, 0, 0.03, zc - 0.65, zc + 0.65, mat('#d8d3c7'), true).receiveShadow = true; }
+  buildAndador(OX + XK + h, OZ + ZK + h + 1.15);
   // Flecha de norte (en el plano el norte apunta a la derecha)
   var north = new THREE.Group();
   box(north, 0, 1.4, 0, 0.04, -0.07, 0.07, mat('#155e80'), true);
@@ -773,7 +795,14 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   function buildLabels() {
     while (labels.children.length) labels.remove(labels.children[0]);
     var short = { principal: 'Principal', hab1: 'Niños 1', hab2: 'Niños 2', sala: 'Sala comedor', cocina: 'Cocina', bano: 'Baño', pasillo: null };
-    ROOMS.forEach(function (r) {
+    if (DIS) DIS.niveles.forEach(function (nv, li) {
+      nv.rooms.forEach(function (r) {
+        if (r[3] < 1.4 || r[4] < 1.3) return;
+        var sp = label(r[0], n2(r[3]) + ' × ' + n2(r[4]) + ' m', AX + r[1] + r[3] / 2, li * EP + 1.5, 9.5 - nv.D + r[2] + r[4] / 2, r[3] < 3 ? 0.62 : 0.8);
+        sp.userData.lv = li; sp.visible = !(soloPB && li > 0);
+      });
+    });
+    else ROOMS.forEach(function (r) {
       if (!short[r.id]) return;
       label(short[r.id], fmt(r.w) + ' × ' + fmt(r.d) + ' m', OX + r.x + r.w / 2, 1.5, OZ + r.z + r.d / 2, r.w < 3 ? 0.62 : 0.8);
     });
@@ -903,9 +932,9 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   var tTecho = document.getElementById('t-techo');
   var tMuebles = document.getElementById('t-muebles');
   var tEtiq = document.getElementById('t-etiquetas');
-  function setRoof(on) { roof.visible = on; tTecho.checked = on; }
-  tTecho.addEventListener('change', function () { roof.visible = tTecho.checked; });
-  tMuebles.addEventListener('change', function () { fur.visible = tMuebles.checked; });
+  function setRoof(on) { roof.visible = on; altRoof.visible = on && !soloPB; tTecho.checked = on; }
+  tTecho.addEventListener('change', function () { setRoof(tTecho.checked); });
+  tMuebles.addEventListener('change', function () { fur.visible = tMuebles.checked; altFur.forEach(function (g) { g.visible = tMuebles.checked; }); });
   tEtiq.addEventListener('change', function () {
     labels.visible = tEtiq.checked;
     carList.forEach(function (c) { if (c.sprite) c.sprite.visible = tEtiq.checked; });
@@ -999,21 +1028,34 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
       go(VIEWS[v[1]]); press(el);
     });
   });
-  var list = document.getElementById('rooms');
-  ROOMS.forEach(function (r) {
-    var li = document.createElement('li');
-    var b = document.createElement('button');
-    b.setAttribute('aria-pressed', 'false');
-    b.innerHTML = '<span class="sw" style="background:' + r.color + '"></span><span class="name">' + r.name +
-      '</span><span class="dim">' + fmt(r.w) + ' × ' + fmt(r.d) + ' m</span><span class="area">' + fmt(Math.round(r.w * r.d * 10) / 10) + ' m²</span>';
-    b.addEventListener('click', function () {
-      setRoof(false);
-      go({ tx: OX + r.x + r.w / 2, tz: OZ + r.z + r.d / 2, r: Math.max(r.w, r.d) * 2.1 + 2, th: cur.th, ph: 0.6 });
-      press(b);
+  var list = document.getElementById('rooms'), roomBtns = [];
+  // items: { name, w, d, color, tx, tz, lv } con el centro del cuarto en metros del terreno
+  function listarEspacios(items) {
+    pressables = pressables.filter(function (b) { return roomBtns.indexOf(b) < 0; });
+    roomBtns = []; list.innerHTML = '';
+    var tot = 0;
+    items.forEach(function (r) {
+      tot += r.w * r.d;
+      var li = document.createElement('li');
+      var b = document.createElement('button');
+      b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = '<span class="sw" style="background:' + r.color + '"></span><span class="name">' + r.name +
+        '</span><span class="dim">' + fmt(r.w) + ' × ' + fmt(r.d) + ' m</span><span class="area">' + fmt(Math.round(r.w * r.d * 10) / 10) + ' m²</span>';
+      b.addEventListener('click', function () {
+        setRoof(false);
+        if (DIS && DIS.niveles.length > 1) setNivel(r.lv === 0);
+        go({ tx: r.tx, tz: r.tz, r: Math.max(r.w, r.d) * 2.1 + 2 + (r.lv ? 3 : 0), th: cur.th, ph: 0.6 });
+        press(b);
+      });
+      pressables.push(b); roomBtns.push(b);
+      li.appendChild(b); list.appendChild(li);
     });
-    pressables.push(b);
-    li.appendChild(b); list.appendChild(li);
-  });
+    document.getElementById('total').textContent = fmt(Math.round(tot * 10) / 10) + ' m²';
+  }
+  function espaciosActual() {
+    return ROOMS.map(function (r) { return { name: r.name, w: r.w, d: r.d, color: r.color, tx: OX + r.x + r.w / 2, tz: OZ + r.z + r.d / 2, lv: 0 }; });
+  }
+  listarEspacios(espaciosActual());
 
   // ---------- Persona (1.65 m) y modo caminar ----------
   var walk = false, fp = true, yaw = -Math.PI / 2, pitch = -0.08, paso = 0;
@@ -1034,7 +1076,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   var cabeza = new THREE.Mesh(new THREE.SphereGeometry(0.115, 16, 12), mPiel); cabeza.position.set(0, 1.5, 0); cabeza.castShadow = true; avatar.add(cabeza);
   var pelo = new THREE.Mesh(new THREE.SphereGeometry(0.118, 16, 12), mPelo); pelo.position.set(0, 1.532, -0.022); avatar.add(pelo);
   box(avatar, -0.012, 0.012, 1.47, 1.5, 0.11, 0.13, mPiel, true);
-  function ponerAvatar() { avatar.position.set(P.x, 0.05, P.z); avatar.rotation.y = yaw; }
+  function ponerAvatar() { avatar.position.set(P.x, PYf + 0.05, P.z); avatar.rotation.y = yaw; }
   ponerAvatar();
 
   // Choques: cajas de todo lo que estorba a la altura del cuerpo (muros, muebles, malla, autos)
@@ -1042,8 +1084,8 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   function gather() {
     colliders = [];
     scene.updateMatrixWorld(true);
-    function add(o) { var b = new THREE.Box3().setFromObject(o); if (b.max.y > 0.35 && b.min.y < 1.5) colliders.push(b); }
-    [site, house, cerca].forEach(function (root) {
+    function add(o) { var b = new THREE.Box3().setFromObject(o); if (b.max.y > PYf + 0.35 && b.min.y < PYf + 1.5) colliders.push(b); }
+    [site, house, alt, cerca].forEach(function (root) {
       root.traverse(function (o) {
         if (!o.isMesh) return;
         if (o.material === mDoor || o.material === mMain || o.material === mGate) return;   // puertas y portón abiertos
@@ -1134,17 +1176,17 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
     ponerAvatar();
     var cp = Math.cos(pitch), lx = fxv * cp, ly = Math.sin(pitch), lz = fzv * cp;   // hacia dónde mira
     if (fp) {
-      camera.position.set(P.x, 1.57, P.z);
-      camera.lookAt(P.x + lx, 1.57 + ly, P.z + lz);
+      camera.position.set(P.x, PYf + 1.57, P.z);
+      camera.lookAt(P.x + lx, PYf + 1.57 + ly, P.z + lz);
     } else {
-      var hy = 1.6, d = 0.3;
+      var hy = PYf + 1.6, d = 0.3;
       while (d < 3.2) {                                    // la cámara se acerca si hay un muro detrás
-        var nd = d + 0.15, cy = Math.max(0.3, hy - ly * nd + 0.25);
-        if (cy > 2.5 && roof.visible || dentro(P.x - lx * nd, cy, P.z - lz * nd)) break;
+        var nd = d + 0.15, cy = Math.max(PYf + 0.3, hy - ly * nd + 0.25);
+        if (cy > PYf + 2.5 || dentro(P.x - lx * nd, cy, P.z - lz * nd)) break;
         d = nd;
       }
-      camera.position.set(P.x - lx * d, Math.max(0.3, hy - ly * d + 0.25), P.z - lz * d);
-      camera.lookAt(P.x + lx * 0.5, 1.5 + ly * 0.5, P.z + lz * 0.5);
+      camera.position.set(P.x - lx * d, Math.max(PYf + 0.3, hy - ly * d + 0.25), P.z - lz * d);
+      camera.lookAt(P.x + lx * 0.5, PYf + 1.5 + ly * 0.5, P.z + lz * 0.5);
     }
   }
 
@@ -1536,6 +1578,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
       filas += '<tr><td>' + p.id + '</td><td>' + p.niveles.length + '</td><td>' + p.rec + '</td><td class="num">' + Math.round(d.cons) + ' m²</td><td class="num">' + Math.round(d.suelo) + ' m²</td><td class="num">' + n2(d.patio) + ' m</td><td class="num">' + pesos(m2 * d.cons) + '</td></tr>';
       cuerpo += '<section class="prop"><h3>Propuesta ' + p.id + ' · ' + p.nombre + '</h3><p>' + p.resumen + '</p>' +
         '<p class="nota">' + Math.round(d.cons) + ' m² de construcción, ' + Math.round(d.util) + ' m² libres por dentro. Ocupa ' + n2(p.niveles[0].W) + ' × ' + n2(p.niveles[0].D) + ' m del terreno.</p>' +
+        '<div><button class="btn" data-ver="' + p.id + '">Ver la propuesta ' + p.id + ' en 3D</button></div>' +
         '<div class="niveles">' + p.niveles.map(planoPropuesta).join('') + '</div>' +
         '<div class="pc"><div><strong>A favor</strong><ul><li>' + p.pros.join('</li><li>') + '</li></ul></div><div><strong>En contra</strong><ul><li>' + p.contras.join('</li><li>') + '</li></ul></div></div></section>';
     });
@@ -1545,8 +1588,238 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
       '<div class="scroll-x"><table class="tbl"><thead><tr><th>Diseño</th><th>Plantas</th><th>Recámaras</th><th class="num">Construcción</th><th class="num">Ocupa del terreno</th><th class="num">Patio al frente</th><th class="num">Costo aproximado</th></tr></thead><tbody>' + filas + '</tbody></table></div>' +
       '<p class="nota">El costo aproximado multiplica los metros construidos por el costo por m² del diseño actual (' + pesos(m2) + ' por m², según la pestaña de costos). En las de dos plantas es un piso bajo: la escalera, la losa de entrepiso y una estructura más reforzada cuestan más por m².</p>' +
       cuerpo +
-      '<p class="nota">Ninguna de estas propuestas está todavía en la maqueta 3D ni en la lista de materiales; esas dos pestañas siguen mostrando el diseño actual.</p>';
+      '<p class="nota">Las cuatro se pueden ver en la maqueta 3D con el selector "Diseño". Las pestañas de Planos y de Materiales y costos siguen mostrando solo el diseño actual.</p>';
   }
+
+  // ---------- Propuestas en 3D (se levantan a partir de las mismas plantas de PROPS) ----------
+  scene.add(alt);
+  function colorCuarto(n) {
+    n = n.toLowerCase();
+    if (n.indexOf('principal') >= 0) return '#c9b79c';
+    if (n.indexOf('niños') >= 0) return '#b9cdb0';
+    if (n.indexOf('sala') >= 0) return '#dccfb8';
+    if (n.indexOf('cocina') >= 0) return '#d9c3a5';
+    if (n.indexOf('baño') >= 0) return '#a9c9cc';
+    return '#cfc8bb';
+  }
+  function opRect(o) { var e = 0.075; return o[1] === 'x' ? [o[2], o[3] - e, o[2] + o[4], o[3] + e] : [o[2] - e, o[3], o[2] + e, o[3] + o[4]]; }
+  function cajaSi(G, x0, x1, y0, y1, z0, z1, m, sinSombra) {
+    if (x1 - x0 < 0.002 || y1 - y0 < 0.002 || z1 - z0 < 0.002) return null;
+    return box(G, x0, x1, y0, y1, z0, z1, m, sinSombra);
+  }
+  // Escalera en U: se entra por el extremo donde está el hueco de paso y se sube por el carril de menor z
+  function escalera(nv) {
+    var r = null; nv.rooms.forEach(function (q) { if (q[5]) r = q; });
+    if (!r) return null;
+    var este = false;
+    nv.ops.forEach(function (o) {
+      if (o[0] !== 'open') return;
+      var a = opRect(o), cx = (a[0] + a[2]) / 2, cz = (a[1] + a[3]) / 2;
+      if (cx > r[1] - 0.2 && cx < r[1] + r[3] + 0.2 && cz > r[2] - 0.2 && cz < r[2] + r[4] + 0.2) este = cx > r[1] + r[3] / 2;
+    });
+    return { x: r[1], z: r[2], w: r[3], d: r[4], este: este };
+  }
+  function ocupados(nv, r) {               // qué lados del cuarto tienen puerta, paso, barra o cancel
+    var x = r[1], z = r[2], w = r[3], d = r[4], s = { N: false, S: false, W: false, E: false, puerta: null };
+    nv.ops.forEach(function (o) {
+      if (o[0] === 'win') return;
+      var a = opRect(o), cx = (a[0] + a[2]) / 2, cz = (a[1] + a[3]) / 2;
+      var ox = a[0] < x + w && a[2] > x, oz = a[1] < z + d && a[3] > z, toca = false;
+      if (ox && Math.abs(cz - (z - 0.075)) < 0.1) { s.N = true; toca = true; }
+      if (ox && Math.abs(cz - (z + d + 0.075)) < 0.1) { s.S = true; toca = true; }
+      if (oz && Math.abs(cx - (x - 0.075)) < 0.1) { s.W = true; toca = true; }
+      if (oz && Math.abs(cx - (x + w + 0.075)) < 0.1) { s.E = true; toca = true; }
+      if (toca && !s.puerta) s.puerta = [cx, cz];
+    });
+    return s;
+  }
+  function amueblar(nv, fg, y0) {
+    function b(x0, x1, z0, z1, ya, yb, color) { return cajaSi(fg, x0, x1, y0 + ya, y0 + yb, z0, z1, mat(color)); }
+    nv.rooms.forEach(function (r) {
+      var n = r[0].toLowerCase(), x = r[1], z = r[2], w = r[3], d = r[4], oc = ocupados(nv, r);
+      if (n.indexOf('principal') >= 0 || n.indexOf('niños') >= 0) {
+        var bw = n.indexOf('principal') >= 0 ? 1.6 : 1.0, bl = n.indexOf('principal') >= 0 ? 2.0 : 1.9;
+        var sur = !oc.S || oc.N, x0 = x + (w - bw) / 2, z0 = sur ? z + d - 0.05 - bl : z + 0.05, zc = sur ? z0 + bl : z0;
+        b(x0, x0 + bw, z0, z0 + bl, 0.04, 0.3, '#7a5a40');
+        b(x0 + 0.04, x0 + bw - 0.04, z0 + 0.04, z0 + bl - 0.04, 0.3, 0.5, n.indexOf('principal') >= 0 ? '#b7c4b0' : '#e9b44c');
+        b(x0, x0 + bw, Math.min(zc, zc + (sur ? -0.08 : 0.08)), Math.max(zc, zc + (sur ? -0.08 : 0.08)), 0.04, 0.95, '#7a5a40');
+        var pz = sur ? zc - 0.55 : zc + 0.15;
+        b(x0 + 0.12, x0 + bw - 0.12, pz, pz + 0.4, 0.5, 0.6, '#ffffff');
+      } else if (n.indexOf('sala') >= 0) {
+        var lx = w >= d, sx = lx ? x + w * 0.27 : x + w / 2, sz = lx ? z + d / 2 : z + d * 0.27, tx = lx ? x + w * 0.7 : x + w / 2, tz = lx ? z + d / 2 : z + d * 0.7;
+        b(sx - 0.45, sx + 0.45, sz - 1.0, sz + 1.0, 0.04, 0.42, '#6d7f86');
+        b(sx - 0.45, sx - 0.25, sz - 1.0, sz + 1.0, 0.42, 0.85, '#6d7f86');
+        b(tx - 0.6, tx + 0.6, tz - 0.45, tz + 0.45, 0.7, 0.76, '#a8794f');
+        [[-0.54, -0.39], [0.48, -0.39], [-0.54, 0.33], [0.48, 0.33]].forEach(function (p) { b(tx + p[0], tx + p[0] + 0.06, tz + p[1], tz + p[1] + 0.06, 0.04, 0.7, '#7a5a40'); });
+      } else if (n.indexOf('cocina') >= 0) {
+        var lado = !oc.S ? 'S' : !oc.N ? 'N' : !oc.W ? 'W' : 'E';
+        if (lado === 'S' || lado === 'N') {
+          var c0 = lado === 'S' ? z + d - 0.65 : z + 0.05;
+          b(x + 0.05, x + w - 0.85, c0, c0 + 0.6, 0.04, 0.9, '#e7e2d8'); b(x + 0.05, x + w - 0.85, c0, c0 + 0.62, 0.9, 0.94, '#5c6166');
+          b(x + 0.6, x + 1.3, c0 + 0.04, c0 + 0.56, 0.94, 0.97, '#1c1f22');
+          b(x + w - 0.78, x + w - 0.08, c0 - 0.05, c0 + 0.65, 0.04, 1.8, '#d5dadd');
+        } else {
+          var k0 = lado === 'E' ? x + w - 0.65 : x + 0.05;
+          b(k0, k0 + 0.6, z + 0.05, z + d - 0.85, 0.04, 0.9, '#e7e2d8'); b(k0, k0 + 0.62, z + 0.05, z + d - 0.85, 0.9, 0.94, '#5c6166');
+          b(k0 + 0.04, k0 + 0.56, z + 0.6, z + 1.3, 0.94, 0.97, '#1c1f22');
+          b(k0 - 0.05, k0 + 0.65, z + d - 0.78, z + d - 0.08, 0.04, 1.8, '#d5dadd');
+        }
+      } else if (n.indexOf('baño') >= 0) {
+        var pu = oc.puerta || [x + w / 2, z], esq = [[x, z, 1, 1], [x + w, z, -1, 1], [x, z + d, 1, -1], [x + w, z + d, -1, -1]];
+        esq.sort(function (p, q) { return Math.hypot(q[0] - pu[0], q[1] - pu[1]) - Math.hypot(p[0] - pu[0], p[1] - pu[1]); });
+        var i = 0;
+        function en(e, a, c, ya, yb, color) {          // caja de a × c pegada a la esquina e
+          var xa = e[0] + e[2] * 0.05, za = e[1] + e[3] * 0.05;
+          b(Math.min(xa, xa + e[2] * a), Math.max(xa, xa + e[2] * a), Math.min(za, za + e[3] * c), Math.max(za, za + e[3] * c), ya, yb, color);
+        }
+        if (n.indexOf('medio') < 0) en(esq[i++], 0.9, 0.9, 0.04, 0.1, '#7fb4ba');
+        en(esq[i], 0.45, 0.65, 0.04, 0.42, '#ffffff'); en(esq[i++], 0.45, 0.2, 0.42, 0.8, '#ffffff');
+        en(esq[i], 0.5, 0.45, 0.04, 0.85, '#ffffff');
+      }
+    });
+  }
+  function nivel3D(nv, y0, esAlto, esUltimo, hayAlto) {
+    var G = new THREE.Group(); alt.add(G);
+    var st = escalera(nv), W = nv.W, D = nv.D;
+    var hueco = st ? (st.este ? [st.x, st.z, st.x + st.w - 1.0, st.z + st.d] : [st.x + 1.0, st.z, st.x + st.w, st.z + st.d]) : null;
+    if (!esAlto) box(G, 0, W, 0, 0.03, 0, D, mat('#bdb6a8'), true).receiveShadow = true;       // firme
+    else if (hueco) {                                                                           // losa de entrepiso, con el hueco de la escalera
+      cajaSi(G, 0, hueco[0], y0 - 0.15, y0, 0, D, mConc); cajaSi(G, hueco[2], W, y0 - 0.15, y0, 0, D, mConc);
+      cajaSi(G, hueco[0], hueco[2], y0 - 0.15, y0, 0, hueco[1], mConc); cajaSi(G, hueco[0], hueco[2], y0 - 0.15, y0, hueco[3], D, mConc);
+    } else box(G, 0, W, y0 - 0.15, y0, 0, D, mConc);
+    nv.rooms.forEach(function (r) {                                                             // piso de cada cuarto
+      var x0 = r[1], x1 = r[1] + r[3];
+      if (esAlto && r[5] && hueco) { if (st.este) x0 = hueco[2]; else x1 = hueco[0]; }
+      var p = cajaSi(G, x0, x1, y0 + (esAlto ? 0 : 0.03), y0 + 0.05, r[2], r[2] + r[4], mat(colorCuarto(r[0])), true);
+      if (p) p.receiveShadow = true;
+    });
+    if (st && !esAlto && hayAlto) {                                                             // escalones
+      var dir = st.este ? -1 : 1, xs = st.este ? st.x + st.w - 1.0 : st.x + 1.0, tr = (st.w - 2.0) / 7, rz = EP / 16, zm = st.z + st.d / 2;
+      for (var i = 1; i <= 7; i++) {
+        var a1 = xs + dir * (i - 1) * tr, a2 = a1 + dir * tr;
+        box(G, Math.min(a1, a2), Math.max(a1, a2), i * rz - 0.17, i * rz, st.z, zm - 0.02, mConc);
+        var b1 = xs + dir * (8 - i) * tr, b2 = b1 - dir * tr;
+        box(G, Math.min(b1, b2), Math.max(b1, b2), (8 + i) * rz - 0.17, (8 + i) * rz, zm + 0.02, st.z + st.d, mConc);
+      }
+      var l1 = xs + dir * 7 * tr, l2 = l1 + dir * 1.0;
+      box(G, Math.min(l1, l2), Math.max(l1, l2), 8 * rz - 0.15, 8 * rz, st.z, st.z + st.d, mConc);   // descanso
+    }
+    // Muros: todo lo que no es cuarto, en una retícula; cada tramo toma la forma de su hueco
+    var xs2 = [0, W], zs2 = [0, D];
+    nv.rooms.forEach(function (r) { xs2.push(r[1], r[1] + r[3]); zs2.push(r[2], r[2] + r[4]); });
+    var rects = nv.ops.map(opRect);
+    rects.forEach(function (a) { xs2.push(a[0], a[2]); zs2.push(a[1], a[3]); });
+    function unicos(v) { v = v.map(function (q) { return Math.round(q * 1000) / 1000; }).sort(function (p, q) { return p - q; }); return v.filter(function (q, i) { return !i || q - v[i - 1] > 0.0015; }); }
+    xs2 = unicos(xs2); zs2 = unicos(zs2);
+    function tramo(x0, x1, z0, z1, o) {
+      var t = o ? o[0] : '', ex = o && o[1] === 'x';
+      if (!t) return void box(G, x0, x1, y0, y0 + H, z0, z1, mWall);
+      if (t === 'door' || t === 'slide') return void box(G, x0, x1, y0 + 2.1, y0 + H, z0, z1, mWall);
+      if (t === 'open') return void box(G, x0, x1, y0 + 2.25, y0 + H, z0, z1, mWall);
+      if (t === 'win') {
+        box(G, x0, x1, y0, y0 + 0.95, z0, z1, mWall); box(G, x0, x1, y0 + 2.1, y0 + H, z0, z1, mWall);
+        var xm = (x0 + x1) / 2, zm2 = (z0 + z1) / 2;
+        var gl = ex ? box(G, x0, x1, y0 + 0.95, y0 + 2.1, zm2 - 0.02, zm2 + 0.02, mGlass, true) : box(G, xm - 0.02, xm + 0.02, y0 + 0.95, y0 + 2.1, z0, z1, mGlass, true);
+        gl.renderOrder = 2; return;
+      }
+      box(G, x0, x1, y0, y0 + 1.0, z0, z1, mWall); box(G, x0, x1, y0 + 2.25, y0 + H, z0, z1, mWall);     // barra
+      if (ex) box(G, x0, x1, y0 + 1.0, y0 + 1.06, z0 - 0.22, z1 + 0.22, mWood); else box(G, x0 - 0.22, x1 + 0.22, y0 + 1.0, y0 + 1.06, z0, z1, mWood);
+    }
+    for (var j = 0; j < zs2.length - 1; j++) {
+      var cz = (zs2[j] + zs2[j + 1]) / 2, ini = -1, clave = null, opAct = null;
+      for (var c = 0; c <= xs2.length - 1; c++) {
+        var k = null, op = null;
+        if (c < xs2.length - 1) {
+          var cx = (xs2[c] + xs2[c + 1]) / 2, dentroCuarto = false;
+          nv.rooms.forEach(function (r) { if (cx > r[1] && cx < r[1] + r[3] && cz > r[2] && cz < r[2] + r[4]) dentroCuarto = true; });
+          if (!dentroCuarto) {
+            k = 'm';
+            for (var q = 0; q < rects.length; q++) if (cx > rects[q][0] && cx < rects[q][2] && cz > rects[q][1] && cz < rects[q][3]) { k = 'o' + q; op = nv.ops[q]; break; }
+          }
+        }
+        if (k !== clave) {
+          if (clave !== null) tramo(xs2[ini], xs2[c], zs2[j], zs2[j + 1], opAct);
+          ini = c; clave = k; opAct = op;
+        }
+      }
+    }
+    nv.ops.forEach(function (o) {                                                               // hojas de puerta y cancel
+      if (o[0] === 'door') {
+        var bis = new THREE.Group(); bis.position.set(o[2], y0, o[3]);
+        bis.rotation.y = (o[1] === 'x' ? 0 : -Math.PI / 2) + (o[5] || 1) * 1.15;
+        box(bis, 0, o[4], 0.04, 2.08, -0.02, 0.02, (!esAlto && o[1] === 'z' && o[2] > W - 0.1) ? mMain : mDoor);
+        G.add(bis);
+      } else if (o[0] === 'slide') {
+        var v = o[1] === 'x' ? box(G, o[2], o[2] + o[4] / 2, y0 + 0.05, y0 + 2.05, o[3] - 0.02, o[3] + 0.02, mGlass, true)
+                             : box(G, o[2] - 0.02, o[2] + 0.02, y0 + 0.05, y0 + 2.05, o[3], o[3] + o[4] / 2, mGlass, true);
+        v.renderOrder = 2;
+      }
+    });
+    var fg = new THREE.Group(); G.add(fg); altFur.push(fg); fg.visible = tMuebles.checked;
+    amueblar(nv, fg, y0);
+    if (esUltimo) box(altRoof, -0.25, W + 0.25, y0 + H, y0 + H + 0.15, -0.25, D + 0.25, mRoof);
+    return G;
+  }
+
+  function setNivel(pb) {
+    soloPB = !!pb;
+    if (altNiv[1]) altNiv[1].visible = !soloPB;
+    altRoof.visible = tTecho.checked && !soloPB;
+    labels.children.forEach(function (sp) { if (sp.userData.lv !== undefined) sp.visible = !(soloPB && sp.userData.lv > 0); });
+    document.getElementById('n-pb').setAttribute('aria-pressed', soloPB ? 'true' : 'false');
+    document.getElementById('n-todo').setAttribute('aria-pressed', soloPB ? 'false' : 'true');
+    collDirty = true;
+  }
+  function setDesign(id) {
+    var p = null; PROPS.forEach(function (q) { if (q.id === id) p = q; });
+    DIS = p; PYf = 0; soloPB = false;
+    vaciar(alt); vaciar(altRoof); altFur = []; altNiv = [];
+    house.visible = !p;
+    var dos = !!p && p.niveles.length > 1;
+    if (p) {
+      var b0 = p.niveles[0], az = 9.5 - b0.D, zc = b0.D / 2, items = [];
+      alt.position.set(AX, 0, az);
+      p.niveles.forEach(function (nv, i) {
+        altNiv.push(nivel3D(nv, i * EP, i > 0, i === p.niveles.length - 1, dos));
+        nv.rooms.forEach(function (r) {
+          items.push({ name: (dos ? (i ? 'PA · ' : 'PB · ') : '') + r[0], w: r[3], d: r[4], color: colorCuarto(r[0]), tx: AX + r[1] + r[3] / 2, tz: az + r[2] + r[4] / 2, lv: i });
+        });
+      });
+      alt.add(altRoof); altRoof.visible = tTecho.checked;
+      b0.ops.forEach(function (o) { if (o[0] === 'door' && o[1] === 'z' && o[2] > b0.W - 0.1 && zc === b0.D / 2) zc = o[3] + o[4] / 2; });
+      buildAndador(AX + b0.W, az + zc);
+      listarEspacios(items);
+      document.getElementById('dis-nota').textContent = 'Propuesta ' + p.id + ': ' + p.nombre.toLowerCase() + '. El porche, los planos y los costos son solo del diseño actual.';
+    } else {
+      buildAndador(OX + XK + h, OZ + ZK + h + 1.15);
+      listarEspacios(espaciosActual());
+      document.getElementById('dis-nota').textContent = '';
+    }
+    document.getElementById('niveles').hidden = !dos;
+    var wn = document.getElementById('w-nivel'); wn.hidden = !dos; wn.textContent = 'Subir a planta alta';
+    setNivel(false);
+    Array.prototype.forEach.call(document.querySelectorAll('#disenos button'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-dis') === (p ? p.id : '') ? 'true' : 'false'); });
+    buildLabels(); setSub(); collDirty = true;
+    if (walk) { P.x = 20.3; P.z = 5.35; } else go(VIEWS.general);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#disenos button'), function (b) {
+    b.addEventListener('click', function () { setDesign(b.getAttribute('data-dis')); });
+  });
+  document.getElementById('n-pb').addEventListener('click', function () { setNivel(true); });
+  document.getElementById('n-todo').addEventListener('click', function () { setNivel(false); });
+  document.getElementById('w-nivel').addEventListener('click', function () {      // la persona cambia de piso al pie de la escalera
+    if (!DIS) return;
+    var b0 = DIS.niveles[0], st = escalera(b0); if (!st) return;
+    P.x = AX + (st.este ? st.x + st.w - 0.5 : st.x + 0.5); P.z = 9.5 - b0.D + st.z + st.d / 4;
+    PYf = PYf ? 0 : EP;
+    if (PYf) setNivel(false);
+    this.textContent = PYf ? 'Bajar a planta baja' : 'Subir a planta alta';
+    collDirty = true;
+  });
+  document.getElementById('propuestas').addEventListener('click', function (e) {
+    var id = e.target.getAttribute && e.target.getAttribute('data-ver');
+    if (id) { setDesign(id); showTab('maqueta'); }
+  });
 
   // ---------- Pestañas ----------
   var tabMaqueta = document.getElementById('tab-maqueta'), TABS = ['maqueta', 'planos', 'costos', 'propuestas'], tabActual = '';
